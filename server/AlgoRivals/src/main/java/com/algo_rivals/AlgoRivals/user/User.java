@@ -83,7 +83,11 @@ public class User implements UserDetails, Principal {
 
     @Override
     public String getUsername() {
-        return username;
+        return email;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     @Override
@@ -108,7 +112,7 @@ public class User implements UserDetails, Principal {
 
     @Override
     public String getName() {
-        return "";
+        return getFullName();
     }
 
     @Override
@@ -116,7 +120,7 @@ public class User implements UserDetails, Principal {
         return Principal.super.implies(subject);
     }
 
-    private String fullName (){
+    public String getFullName (){
         return firstName + " " + lastName;
     }
 }
