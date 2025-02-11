@@ -19,7 +19,7 @@ public class RegistrationRequest {
     @NotBlank(message = "Firstname is mandatory")
     private String firstName;
     @NotEmpty(message = "Lastname is mandatory")
-    @NotBlank(message = "lastname is mandatory")
+    @NotBlank(message = "Lastname is mandatory")
     private String lastName;
     @Email(message = "Email is not formatted")
     @NotEmpty(message = "Email is mandatory")
