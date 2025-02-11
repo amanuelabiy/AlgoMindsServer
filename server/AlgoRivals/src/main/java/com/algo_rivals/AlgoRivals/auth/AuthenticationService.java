@@ -2,19 +2,27 @@ package com.algo_rivals.AlgoRivals.auth;
 
 import com.algo_rivals.AlgoRivals.email.EmailService;
 import com.algo_rivals.AlgoRivals.email.EmailTemplateName;
+import com.algo_rivals.AlgoRivals.security.JwtService;
 import com.algo_rivals.AlgoRivals.user.Token;
 import com.algo_rivals.AlgoRivals.user.TokenRepository;
 import com.algo_rivals.AlgoRivals.user.User;
 import com.algo_rivals.AlgoRivals.user.UserRepository;
 import com.algo_rivals.AlgoRivals.user.role.RoleRepository;
+import io.jsonwebtoken.Jwt;
 import jakarta.mail.MessagingException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -26,6 +34,8 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final EmailService emailService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @Value("${application.mailing.frontend.activation-url}")
     private String activationUrl;
@@ -92,5 +102,52 @@ public class AuthenticationService {
 
         return codeBuilder.toString();
 
+    }
+
+    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        var auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+        // If we make it here, the user is authenticated and all the information provided is correct
+
+        var claims = new HashMap<String, Object>();
+        // auth.getPrincipal() returns the user object
+        var user = ((User)auth.getPrincipal());
+        claims.put("fullName", user.getFullName());
+        var jwtToken = jwtService.generateToken(claims,user);
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .build();
+
+    }
+
+    // @Transactional makes sure that if anything goes wrong, the database will be rolled back to the previous state
+    // Either all the operations will be successful or none of them will be
+    @Transactional
+    public void activateAccount(String token) throws MessagingException {
+        Token savedToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new RuntimeException("Invalid token"));
+
+        if (LocalDateTime.now().isAfter(savedToken.getExpiresAt())){
+            sendValidationEmail(savedToken.getUser());
+            throw new RuntimeException("Activation token has expired. A new one token been sent to your email");
+        }
+
+        // If token is not expired, activate the account
+
+        // Extra check to make sure the user is not already enabled
+        var user = userRepository.findById(savedToken.getUser().getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        user.setEnabled(true);
+
+        userRepository.save(user);
+
+        savedToken.setValidatedAt(LocalDateTime.now());
+
+        tokenRepository.save(savedToken);
     }
 }
