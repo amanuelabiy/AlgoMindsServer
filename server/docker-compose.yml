@@ -1,20 +1,4 @@
 services:
-  postgres:
-    container_name: postgresl-sql-bsn
-    image: postgres
-    environment:
-      POSTGRES_USER: username
-      POSTGRES_PASSWORD: password
-      PGDATA: /var/lib/postgresql/data
-      POSTGRES_DB: algo_rivals_db
-    volumes:
-        - postgres:/data/postgres
-    ports:
-        - 5433:5432
-    networks:
-      - spring-demo
-    restart: unless-stopped
-
   mail-dev:
     container_name: mail-dev-bsn
     image: maildev/maildev
@@ -26,6 +10,3 @@ networks:
     spring-demo:
         driver: bridge
 
-volumes:
-    postgres:
-      driver: local

@@ -22,7 +22,7 @@ import java.util.List;
 @EntityListeners(AuditingEntityListener.class)
 public class Role {
 
-    //TODO 57:00
+
 
     @Id
     @GeneratedValue

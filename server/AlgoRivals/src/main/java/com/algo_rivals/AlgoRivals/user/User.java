@@ -37,8 +37,6 @@ public class User implements UserDetails, Principal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Integer id;
     @Column(unique = true, nullable = false)
-    private String username;
-    @Column(unique = true, nullable = false)
     private String firstName;
     @Column(unique = true, nullable = false)
     private String lastName;
@@ -83,10 +81,6 @@ public class User implements UserDetails, Principal {
 
     @Override
     public String getUsername() {
-        return email;
-    }
-
-    public String getEmail() {
         return email;
     }
 
