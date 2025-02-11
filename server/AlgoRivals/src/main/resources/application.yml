@@ -11,4 +11,4 @@ springdoc:
 server:
   servlet:
     context-path: /api/v1/
-##Makes it clear that all URLs starting with /api/v1/ are part of the API version 1.
+    ##Makes it clear that all URLs starting with /api/v1/ are part of the API version 1.
