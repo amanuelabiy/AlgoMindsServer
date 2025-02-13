@@ -1,7 +1,9 @@
-package com.algo_rivals.AlgoRivals.problem;
+package com.algo_rivals.AlgoRivals.problem.controller;
 
 import java.util.List;
 
+import com.algo_rivals.AlgoRivals.problem.model.Problem;
+import com.algo_rivals.AlgoRivals.problem.service.ProblemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;

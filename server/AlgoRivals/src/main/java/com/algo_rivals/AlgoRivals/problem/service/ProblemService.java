@@ -1,7 +1,9 @@
-package com.algo_rivals.AlgoRivals.problem;
+package com.algo_rivals.AlgoRivals.problem.service;
 
 import java.util.List;
 
+import com.algo_rivals.AlgoRivals.problem.repository.ProblemRepository;
+import com.algo_rivals.AlgoRivals.problem.model.Problem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

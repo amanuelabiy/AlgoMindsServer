@@ -1,4 +1,4 @@
-package com.algo_rivals.AlgoRivals.problem;
+package com.algo_rivals.AlgoRivals.problem.model;
 
 import java.sql.Date;
 
