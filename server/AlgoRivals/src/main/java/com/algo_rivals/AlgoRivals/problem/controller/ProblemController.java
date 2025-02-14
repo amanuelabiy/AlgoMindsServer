@@ -29,7 +29,7 @@ public class ProblemController {
         return service.getProblems();
     }
 
-    @GetMapping("/Problems/{prodId}")
+    @GetMapping("/Problems/{problem_id}")
     public Problem getProblem(@PathVariable int problem_id) {
         return service.getProblem(problem_id);
     }
