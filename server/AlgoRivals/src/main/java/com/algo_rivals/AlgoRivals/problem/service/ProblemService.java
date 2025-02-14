@@ -15,8 +15,8 @@ public class ProblemService {
 
     public void updateProblem(Problem p) {
         // TODO Auto-generated method stub
-        Problem existingProblem = repo.findById(p.getProblem_id())
-                .orElseThrow(() -> new RuntimeException("Problem not found with ID: " + p.getProblem_id()));
+        Problem existingProblem = repo.findById(p.getId())
+                .orElseThrow(() -> new RuntimeException("Problem not found with ID: " + p.getId()));
 
         // Update fields
         existingProblem.setTitle(p.getTitle());
@@ -31,7 +31,7 @@ public class ProblemService {
 
     public void addProblem(Problem p) {
         // TODO Auto-generated method stub\
-        p.setProblem_id(0);
+        p.setId(0);
         repo.save(p);
     }
 
@@ -46,4 +46,12 @@ public class ProblemService {
 
         return existingProblem;
     }
+
+    public Problem getRandomProblem() {
+        Problem existingProblem = repo.findById((int) Math.random() * 1000)
+                .orElseThrow(() -> new RuntimeException("Problem not found"));
+        return existingProblem;
+
+    }
+
 }
