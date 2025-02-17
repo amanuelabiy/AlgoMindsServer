@@ -4,6 +4,8 @@ import { AuthService } from "./auth.service";
 import { HTTPSTATUS } from "../../config/http.config";
 import { registerSchema } from "../../common/validators/auth.validator";
 
+// #TODO: remember to hash passwords before sending to database
+
 export class AuthController {
   private authService: AuthService;
 
