@@ -2,7 +2,7 @@ import { VerficationEnum, VerificationCode } from "@prisma/client";
 import prismaClient from "../../config/prismaClient";
 import { CreateVerificationCodeDto } from "../../common/interface/verificationCode";
 
-export class VerficationRepository {
+export class VerificationCodeRepository {
   async createVerificationCode(
     data: CreateVerificationCodeDto
   ): Promise<VerificationCode> {

@@ -9,10 +9,11 @@ const appConfig = () => ({
 
   JWT: {
     SECRET: getEnv("JWT_SECRET"),
-    EXPIRES_IN: getEnv("JWT_EXPIRES_IN", "15m"),
     REFRESH_SECRET: getEnv("JWT_REFRESH_SECRET"),
-    REFRESH_EXPIRES_IN: getEnv("JWT_REFRESH_EXPIRES_IN", "7d"),
   },
 });
+
+export const JWT_EXPIRES_IN = "15m";
+export const JWT_REFRESH_EXPIRES_IN = "30d";
 
 export const config = appConfig();
