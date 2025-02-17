@@ -1,7 +1,6 @@
-import jwt from "jsonwebtoken";
 import { User } from "@prisma/client";
 import { ErrorCode } from "../../common/enums/error-code.enum";
-import { LoginDto, RegisterDto } from "../../common/interface/auth.interface";
+import { LoginDto, RegisterDto } from "../../common/interface/authDto";
 import {
   BadRequestException,
   UnauthorizedException,
@@ -25,6 +24,7 @@ import {
   signJwtToken,
   verifiyJwtToken,
 } from "../../common/utils/jwt";
+import { VerficationEnum } from "@prisma/client";
 
 export class AuthService {
   private userService: UserService;
@@ -171,5 +171,42 @@ export class AuthService {
     });
 
     return { accessToken, newRefreshToken };
+  }
+
+  public async verifyEmail(code: string) {
+    const validCode = await this.verificationCodeService.findByCodeAndType({
+      id: code,
+      type: VerficationEnum.EMAIL_VERIFICATION,
+      expiresAt: new Date(),
+    });
+
+    if (!validCode) {
+      throw new BadRequestException("Invalid or expired verification code");
+    }
+
+    const user = await this.userService.findById(validCode.userId);
+
+    if (!user) {
+      throw new BadRequestException(
+        "Unable to verify email address",
+        ErrorCode.VALIDATION_ERROR
+      );
+    }
+
+    const updatedUser = await this.userService.findByIdAndUpdate({
+      id: validCode.userId,
+      data: { isEmailVerified: true },
+    });
+
+    // This should not get hit, but just in case since prisma throws its own exception if the user is not found when trying to update
+    if (!updatedUser) {
+      throw new BadRequestException(
+        "Unable to verify email address",
+        ErrorCode.VALIDATION_ERROR
+      );
+    }
+
+    //#TODO: Delete the verification code
+    //#TODO: Return updatedUser
   }
 }

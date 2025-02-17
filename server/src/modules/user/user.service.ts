@@ -1,7 +1,8 @@
 import { User } from "@prisma/client";
-import { RegisterDto } from "../../common/interface/auth.interface";
+import { RegisterDto } from "../../common/interface/authDto";
 import { compareValue, hashValue } from "../../common/utils/bcrypt";
 import { UserRepository } from "./user.repository";
+import { FindByIdAndUpdateDto } from "../../common/interface/userDto";
 
 export class UserService {
   private userRepository: UserRepository;
@@ -26,6 +27,14 @@ export class UserService {
 
   public async findByEmail(email: string): Promise<User | null> {
     return await this.userRepository.findByEmail(email);
+  }
+
+  public async findByIdAndUpdate(data: FindByIdAndUpdateDto): Promise<User> {
+    return await this.userRepository.findByIdAndUpdate(data);
+  }
+
+  public async findById(id: string): Promise<User | null> {
+    return await this.userRepository.findById(id);
   }
 
   public async comparePassword(

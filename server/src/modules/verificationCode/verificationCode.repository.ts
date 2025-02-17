@@ -1,6 +1,9 @@
 import { VerficationEnum, VerificationCode } from "@prisma/client";
 import prismaClient from "../../config/prismaClient";
-import { CreateVerificationCodeDto } from "../../common/interface/verificationCode";
+import {
+  CreateVerificationCodeDto,
+  FindByCodeAndTypeDto,
+} from "../../common/interface/verificationCode";
 
 export class VerificationCodeRepository {
   async createVerificationCode(
@@ -19,5 +22,17 @@ export class VerificationCodeRepository {
 
   async deleteVerificationTokenById(id: string): Promise<void> {
     await prismaClient.verificationCode.delete({ where: { id } });
+  }
+
+  async findByCodeAndType(data: FindByCodeAndTypeDto) {
+    const { id, type, expiresAt } = data;
+
+    return await prismaClient.verificationCode.findFirst({
+      where: {
+        id,
+        type,
+        expiresAt: { gt: expiresAt },
+      },
+    });
   }
 }

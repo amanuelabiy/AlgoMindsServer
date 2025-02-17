@@ -5,3 +5,9 @@ export interface CreateVerificationCodeDto {
   type: VerficationEnum;
   expiresAt: Date;
 }
+
+export interface FindByCodeAndTypeDto {
+  id: string;
+  type: VerficationEnum;
+  expiresAt: Date;
+}
