@@ -12,7 +12,6 @@ import {
   ONE_DAY_IN_MS,
 } from "../../common/utils/date-time";
 import { UserService } from "../user/user.service";
-import { VerificationCodeRepository } from "../verificationCode/verificationCode.repository";
 import { VerificationCodeService } from "../verificationCode/verificationCode.service";
 import { SessionService } from "../session/session.service";
 import {
@@ -156,5 +155,21 @@ export class AuthService {
       const newExpiresAt = calculateExpirationDate(JWT_REFRESH_EXPIRES_IN);
       await this.sessionService.updateExpiresAtById(session.id, newExpiresAt);
     }
+
+    const newRefreshToken = sessionRequireRefresh
+      ? signJwtToken(
+          {
+            sessionId: session.id,
+          },
+          refreshTokenSignOptions
+        )
+      : undefined;
+
+    const accessToken = signJwtToken({
+      userId: session.userId,
+      sessionId: session.id,
+    });
+
+    return { accessToken, newRefreshToken };
   }
 }

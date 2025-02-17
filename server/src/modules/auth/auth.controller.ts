@@ -7,7 +7,11 @@ import {
   registerSchema,
 } from "../../common/validators/auth.validator";
 import { omitSensitive } from "../../common/utils/omitSensitive";
-import { setAuthenticationCookies } from "../../common/utils/cookie";
+import {
+  getAccessTokenCookieOptions,
+  getRefreshTokenCookieOptions,
+  setAuthenticationCookies,
+} from "../../common/utils/cookie";
 import { UnauthorizedException } from "../../common/utils/catch-errors";
 
 // #TODO: remember to hash passwords before sending to database
@@ -65,10 +69,26 @@ export class AuthController {
 
       // If the refresh token is not present, throw an error. Refresh token is required to get a new access token
       if (!refreshToken) {
-        throw new UnauthorizedException("User not authorized");
+        throw new UnauthorizedException("Missing refresh token");
       }
 
-      await this.authService.refreshToken(refreshToken);
+      const { accessToken, newRefreshToken } =
+        await this.authService.refreshToken(refreshToken);
+
+      if (newRefreshToken) {
+        res.cookie(
+          "refreshToken",
+          newRefreshToken,
+          getRefreshTokenCookieOptions()
+        );
+      }
+
+      return res
+        .status(HTTPSTATUS.OK)
+        .cookie("accessToken", accessToken, getAccessTokenCookieOptions())
+        .json({
+          message: "Refreshed access token successfully",
+        });
     }
   );
 }
