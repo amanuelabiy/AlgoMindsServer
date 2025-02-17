@@ -1,3 +1,4 @@
+import { RegisterDto } from "../../common/interface/auth.interface";
 import prismaClient from "../../config/prismaClient";
 import { User } from "@prisma/client";
 
@@ -7,6 +8,12 @@ export class UserRepository {
       where: {
         email,
       },
+    });
+  }
+
+  async create(data: RegisterDto): Promise<User> {
+    return prismaClient.user.create({
+      data,
     });
   }
 }

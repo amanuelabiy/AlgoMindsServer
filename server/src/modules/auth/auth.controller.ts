@@ -15,12 +15,9 @@ export class AuthController {
 
   public register = asyncHandler(
     async (req: Request, res: Response): Promise<any> => {
-      // Add the user agent to the request body
-      const userAgent = req.headers["user-agent"];
       // Validate the request body
       const body = registerSchema.parse({
         ...req.body,
-        userAgent,
       });
 
       this.authService.register(body);
