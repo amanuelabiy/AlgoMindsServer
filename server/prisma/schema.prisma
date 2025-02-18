@@ -74,3 +74,19 @@ model VerificationCode {
   @@index([userId])
   @@map("verification_codes")
 }
+
+model Problem {
+  id                Int     @id @default(autoincrement())
+  slug              String  @unique
+  title             String
+  difficulty        String
+  content           String
+  answer_cplusplus  String?
+  answer_java       String?
+  answer_python     String?
+  answer_javascript String?
+  explanation       String?
+  
+ 
+  @@map("problems")
+}
