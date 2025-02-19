@@ -25,4 +25,10 @@ export class VerificationCodeService {
   ): Promise<VerificationCode | null> {
     return this.verificationCodeRepository.findByCodeAndType(data);
   }
+
+  public async deleteVerificationCodeById(
+    id: string
+  ): Promise<VerificationCode> {
+    return this.verificationCodeRepository.deleteVerificationCodeById(id);
+  }
 }

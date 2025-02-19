@@ -15,8 +15,6 @@ import {
 } from "../../common/utils/cookie";
 import { UnauthorizedException } from "../../common/utils/catch-errors";
 
-// #TODO: remember to hash passwords before sending to database
-
 export class AuthController {
   private authService: AuthService;
 
@@ -96,7 +94,6 @@ export class AuthController {
   public verifyEmail = asyncHandler(
     async (req: Request, res: Response): Promise<any> => {
       const { code } = verificationEmailSchema.parse(req.body);
-
       await this.authService.verifyEmail(code);
 
       return res.status(HTTPSTATUS.OK).json({

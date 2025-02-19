@@ -25,6 +25,8 @@ import {
   verifiyJwtToken,
 } from "../../common/utils/jwt";
 import { VerficationEnum } from "@prisma/client";
+import { sendEmail } from "../../mailers/mailer";
+import { verifyEmailTemplate } from "../../mailers/templates/templates";
 
 export class AuthService {
   private userService: UserService;
@@ -67,6 +69,11 @@ export class AuthService {
       });
 
     // Send the verification email link
+    const verificationUrl = `${config.APP_ORIGIN}/confirm-account?code=${verificationCode.id}`;
+    await sendEmail({
+      to: newUser.email,
+      ...verifyEmailTemplate(verificationUrl),
+    });
 
     return {
       user: newUser,
@@ -206,7 +213,13 @@ export class AuthService {
       );
     }
 
-    //#TODO: Delete the verification code
-    //#TODO: Return updatedUser
+    // Delete the verification code
+    await this.verificationCodeService.deleteVerificationCodeById(validCode.id);
+
+    // return updated user
+
+    return {
+      user: updatedUser,
+    };
   }
 }
