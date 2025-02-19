@@ -9,6 +9,7 @@ import { HTTPSTATUS } from "./config/http.config";
 import { asyncHandler } from "./middlewares/asyncHandler";
 import authRoutes from "./modules/auth/auth.routes";
 import problemRoutes from "./modules/problem/problem.routes";
+import openAIRoutes from "./modules/openai/openai.routes";
 
 const app = express();
 const BASE_PATH = config.BASE_PATH;
@@ -33,6 +34,8 @@ app.get(
 
 app.use(`${BASE_PATH}/auth`, authRoutes);
 app.use(`${BASE_PATH}/problems`, problemRoutes);
+app.use(`${BASE_PATH}/testai`, openAIRoutes);
+
 
 
 app.use(errorHandler);
