@@ -22,4 +22,8 @@ export class SessionRepository {
   public async deleteManySessionsByUserId(userId: string) {
     return prismaClient.session.deleteMany({ where: { userId } });
   }
+
+  public async deleteSessionById(sessionId: string) {
+    return prismaClient.session.delete({ where: { id: sessionId } });
+  }
 }

@@ -330,4 +330,8 @@ export class AuthService {
       user: updatedUser,
     };
   }
+
+  public async logout(sessionId: string) {
+    return await this.sessionService.deleteSessionById(sessionId);
+  }
 }

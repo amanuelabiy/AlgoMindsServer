@@ -9,6 +9,7 @@ import { HTTPSTATUS } from "./config/http.config";
 import { asyncHandler } from "./middlewares/asyncHandler";
 import authRoutes from "./modules/auth/auth.routes";
 import problemRoutes from "./modules/problem/problem.routes";
+import passport from "./middlewares/passport";
 
 const app = express();
 const BASE_PATH = config.BASE_PATH;
@@ -23,6 +24,8 @@ app.use(
 ); // Middleware to enable CORS
 
 app.use(cookieParser());
+// Initialize passport middleware for authentication and authorization
+app.use(passport.initialize());
 
 app.get(
   "/",
@@ -33,7 +36,6 @@ app.get(
 
 app.use(`${BASE_PATH}/auth`, authRoutes);
 app.use(`${BASE_PATH}/problems`, problemRoutes);
-
 
 app.use(errorHandler);
 

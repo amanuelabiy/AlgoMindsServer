@@ -23,4 +23,8 @@ export class SessionService {
   public async deleteManySessionsByUserId(userId: string) {
     return this.sessionRepository.deleteManySessionsByUserId(userId);
   }
+
+  public async deleteSessionById(sessionId: string) {
+    return this.sessionRepository.deleteSessionById(sessionId);
+  }
 }
