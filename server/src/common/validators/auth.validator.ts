@@ -28,6 +28,6 @@ export const verificationEmailSchema = z.object({
 });
 
 export const resetPasswordSchema = z.object({
-  passwordSchema: passwordSchema,
+  password: passwordSchema,
   verificationCode: verificationCodeSchema,
 });

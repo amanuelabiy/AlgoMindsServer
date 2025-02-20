@@ -1,3 +1,4 @@
+import { CreateEmailResponse } from "resend";
 import { config } from "../config/app.config";
 import { resend } from "./resendClient";
 
@@ -36,9 +37,15 @@ const getToEmail = (to: string | string[]): string[] => {
   return [to]; // This is the email address that will receive the email
 };
 
-export const sendEmail = async ({ to, from, subject, text, html }: Params) => {
-  await resend.emails.send({
-    from: from ?? getFromEmail(),
+export const sendEmail = async ({
+  to,
+  from,
+  subject,
+  text,
+  html,
+}: Params): Promise<CreateEmailResponse> => {
+  return await resend.emails.send({
+    from: from || getFromEmail(),
     to: getToEmail(to),
     text,
     subject,

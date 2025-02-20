@@ -19,4 +19,8 @@ export class SessionService {
   public async updateExpiresAtById(sessionId: string, expiresAt: Date) {
     return this.sessionRepository.updateExpiresAtById(sessionId, expiresAt);
   }
+
+  public async deleteManySessionsByUserId(userId: string) {
+    return this.sessionRepository.deleteManySessionsByUserId(userId);
+  }
 }

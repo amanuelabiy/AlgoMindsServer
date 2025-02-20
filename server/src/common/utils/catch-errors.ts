@@ -32,6 +32,16 @@ export class UnauthorizedException extends AppError {
   }
 }
 
+export class InternalServerException extends AppError {
+  constructor(message = "Internal Server Error", errorCode?: ErrorCode) {
+    super(
+      message,
+      HTTPSTATUS.INTERNAL_SERVER_ERROR,
+      errorCode || ErrorCode.INTERNAL_SERVER_ERROR
+    );
+  }
+}
+
 export class HttpException extends AppError {
   constructor(
     message = "Http Exception Error",
