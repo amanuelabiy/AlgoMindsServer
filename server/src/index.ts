@@ -10,6 +10,8 @@ import { asyncHandler } from "./middlewares/asyncHandler";
 import authRoutes from "./modules/auth/auth.routes";
 import problemRoutes from "./modules/problem/problem.routes";
 import passport from "./middlewares/passport";
+import { authenticateJWT } from "./common/strategies/jwt.strategy";
+import sessionRoutes from "./modules/session/session.routes";
 
 const app = express();
 const BASE_PATH = config.BASE_PATH;
@@ -36,6 +38,9 @@ app.get(
 
 app.use(`${BASE_PATH}/auth`, authRoutes);
 app.use(`${BASE_PATH}/problems`, problemRoutes);
+
+// Authenticate JWT token for all routes under /session
+app.use(`${BASE_PATH}/session`, authenticateJWT, sessionRoutes);
 
 app.use(errorHandler);
 

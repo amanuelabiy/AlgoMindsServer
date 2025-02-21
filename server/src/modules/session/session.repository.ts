@@ -26,4 +26,25 @@ export class SessionRepository {
   public async deleteSessionById(sessionId: string) {
     return prismaClient.session.delete({ where: { id: sessionId } });
   }
+
+  public async findActiveSessionsByUserId(userId: string) {
+    return prismaClient.session.findMany({
+      where: {
+        userId,
+        expiresAt: {
+          gt: new Date(),
+        },
+      },
+      select: {
+        id: true,
+        userId: true,
+        userAgent: true,
+        createdAt: true,
+        expiresAt: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  }
 }

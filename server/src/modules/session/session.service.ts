@@ -8,6 +8,14 @@ export class SessionService {
     this.sessionRepository = sessionRepository;
   }
 
+  public async getAllSessions(userId: string) {
+    const sessions = await this.sessionRepository.findActiveSessionsByUserId(
+      userId
+    );
+
+    return { sessions };
+  }
+
   public async createSession(data: CreateSessionDto) {
     return this.sessionRepository.createSession(data);
   }
