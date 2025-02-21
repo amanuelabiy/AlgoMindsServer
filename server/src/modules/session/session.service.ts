@@ -1,4 +1,5 @@
 import { CreateSessionDto } from "../../common/interface/sessionDto";
+import { NotFoundException } from "../../common/utils/catch-errors";
 import { SessionRepository } from "./session.repository";
 
 export class SessionService {
@@ -14,6 +15,18 @@ export class SessionService {
     );
 
     return { sessions };
+  }
+
+  public async getUserFromSession(sessionId: string) {
+    const session = await this.sessionRepository.getUserFromSession(sessionId);
+
+    if (!session) {
+      throw new NotFoundException("Session not found");
+    }
+
+    const { user } = session;
+
+    return { user };
   }
 
   public async createSession(data: CreateSessionDto) {
@@ -34,5 +47,18 @@ export class SessionService {
 
   public async deleteSessionById(sessionId: string) {
     return this.sessionRepository.deleteSessionById(sessionId);
+  }
+
+  public async deleteSessionByIdAndUserId(sessionid: string, userId: string) {
+    const deletedSession =
+      await this.sessionRepository.findBySessionIdAndUserId(sessionid, userId);
+
+    if (!deletedSession) {
+      throw new NotFoundException("Session not found");
+    }
+
+    await this.sessionRepository.deleteSessionByIdAndUserId(sessionid, userId);
+
+    return deletedSession;
   }
 }

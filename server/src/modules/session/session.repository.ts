@@ -12,6 +12,15 @@ export class SessionRepository {
     return prismaClient.session.findUnique({ where: { id: sessionId } });
   }
 
+  public async findBySessionIdAndUserId(sessionId: string, userId: string) {
+    return prismaClient.session.findUnique({
+      where: {
+        id: sessionId,
+        userId,
+      },
+    });
+  }
+
   public async updateExpiresAtById(sessionId: string, expiresAt: Date) {
     return prismaClient.session.update({
       where: { id: sessionId },
@@ -44,6 +53,22 @@ export class SessionRepository {
       },
       orderBy: {
         createdAt: "desc",
+      },
+    });
+  }
+
+  public async getUserFromSession(sessionId: string) {
+    return await prismaClient.session.findUnique({
+      where: { id: sessionId },
+      include: { user: true },
+    });
+  }
+
+  public async deleteSessionByIdAndUserId(sessionId: string, userId: string) {
+    return prismaClient.session.delete({
+      where: {
+        id: sessionId,
+        userId,
       },
     });
   }
