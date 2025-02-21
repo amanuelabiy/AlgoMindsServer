@@ -2,7 +2,11 @@ import { User } from "@prisma/client";
 import { RegisterDto } from "../../common/interface/authDto";
 import { compareValue, hashValue } from "../../common/utils/bcrypt";
 import { UserRepository } from "./user.repository";
-import { FindByIdAndUpdateDto } from "../../common/interface/userDto";
+import {
+  FindByIdAndUpdateDto,
+  UpdateUserPreferencesDto,
+} from "../../common/interface/userDto";
+import { UserWithPreferences } from "../../@types/user/user";
 
 export class UserService {
   private userRepository: UserRepository;
@@ -35,6 +39,16 @@ export class UserService {
 
   public async findById(id: string): Promise<User | null> {
     return await this.userRepository.findById(id);
+  }
+
+  public async getUserWithPreferencesById(
+    userId: string
+  ): Promise<UserWithPreferences | null> {
+    return await this.userRepository.getUserWithPreferencesById(userId);
+  }
+
+  public async updateUserPreferencesByUserId(data: UpdateUserPreferencesDto) {
+    return await this.userRepository.updateUserPreferencesByUserId(data);
   }
 
   public async comparePassword(

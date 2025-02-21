@@ -6,6 +6,7 @@ const appConfig = () => ({
   PORT: getEnv("PORT", "5000"),
   BASE_PATH: getEnv("BASE_PATH", "/api/v1"),
   DATABASE_URL: getEnv("DIRECT_URL"),
+  APPLICATION_NAME: getEnv("APPLICATION_NAME"),
 
   JWT: {
     SECRET: getEnv("JWT_SECRET"),
