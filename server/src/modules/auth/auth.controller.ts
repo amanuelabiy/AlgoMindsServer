@@ -51,8 +51,24 @@ export class AuthController {
         userAgent,
       });
 
+      /* Inside of Auth Service we are doing password and if the user exists
+       So if the second if(!user) gets hit there was an error in receiving the user from the service
+      That is why its a NotFoundException and not n UnauthorizedException
+      */
       const { user, accessToken, refreshToken, mfaRequired } =
         await this.authService.login(body);
+
+      if (mfaRequired && !user) {
+        return res.status(HTTPSTATUS.OK).json({
+          message: "Verify MFA authentication",
+          mfaRequired,
+          data: user,
+        });
+      }
+
+      if (!user) {
+        throw new NotFoundException("User not found");
+      }
 
       return setAuthenticationCookies({
         res,
