@@ -1,18 +1,23 @@
 import { Request } from "express";
 import {
   BadRequestException,
+  NotFoundException,
   UnauthorizedException,
 } from "../../common/utils/catch-errors";
 import speakeasy from "speakeasy";
 import qrcode from "qrcode";
 import { UserService } from "../user/user.service";
 import { config } from "../../config/app.config";
+import { refreshTokenSignOptions, signJwtToken } from "../../common/utils/jwt";
+import { SessionService } from "../session/session.service";
 
 export class MfaService {
   private readonly userService: UserService;
+  private readonly sessionService: SessionService;
 
-  constructor(userService: UserService) {
+  constructor(userService: UserService, sessionService: SessionService) {
     this.userService = userService;
+    this.sessionService = sessionService;
   }
 
   public async generateMFASetup(req: Request) {
@@ -26,7 +31,7 @@ export class MfaService {
       await this.userService.getUserWithPreferencesById(user.id);
 
     if (!userWithPreferences || !userWithPreferences.userPreferences) {
-      throw new UnauthorizedException("User preferences not found");
+      throw new NotFoundException("User preferences not found");
     }
 
     if (userWithPreferences.userPreferences.enable2FA) {
@@ -80,7 +85,7 @@ export class MfaService {
       await this.userService.getUserWithPreferencesById(user.id);
 
     if (!userWithPreferences || !userWithPreferences.userPreferences) {
-      throw new UnauthorizedException("User preferences not found");
+      throw new NotFoundException("User preferences not found");
     }
 
     if (userWithPreferences.userPreferences.enable2FA) {
@@ -130,7 +135,7 @@ export class MfaService {
       await this.userService.getUserWithPreferencesById(user.id);
 
     if (!userWithPreferences || !userWithPreferences.userPreferences) {
-      throw new UnauthorizedException("User preferences not found");
+      throw new NotFoundException("User preferences not found");
     }
 
     if (!userWithPreferences.userPreferences.enable2FA) {
@@ -158,6 +163,66 @@ export class MfaService {
       userPreferences: {
         enable2FA: updatedUsersPreferences.enable2FA,
       },
+    };
+  }
+
+  public async verifyMFAForLogin(
+    code: string,
+    email: string,
+    userAgent: string | undefined
+  ) {
+    const user = await this.userService.findByEmail(email);
+
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+
+    const userWithPreferences =
+      await this.userService.getUserWithPreferencesById(user.id);
+
+    if (!userWithPreferences || !userWithPreferences.userPreferences) {
+      throw new NotFoundException("User preferences not found");
+    }
+
+    if (
+      !userWithPreferences.userPreferences.enable2FA &&
+      !userWithPreferences.userPreferences.twoFactorSecret
+    ) {
+      throw new UnauthorizedException("MFA not enabled for this user");
+    }
+
+    const isValid = speakeasy.totp.verify({
+      secret: userWithPreferences.userPreferences.twoFactorSecret!,
+      encoding: "base32",
+      token: code,
+    });
+
+    if (!isValid) {
+      throw new BadRequestException("Invalid MFA code. Please try again.");
+    }
+
+    // sign access token and refresh token
+    const session = await this.sessionService.createSession({
+      userId: user.id,
+      userAgent,
+    });
+
+    const accessToken = signJwtToken({
+      userId: user.id,
+      sessionId: session.id,
+    });
+
+    const refreshToken = signJwtToken(
+      {
+        sessionId: session.id,
+      },
+      refreshTokenSignOptions
+    );
+
+    return {
+      user,
+      accessToken,
+      refreshToken,
     };
   }
 }
