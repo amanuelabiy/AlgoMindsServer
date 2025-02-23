@@ -118,4 +118,46 @@ export class MfaService {
       },
     };
   }
+
+  public async revokeMFA(req: Request) {
+    const user = req.user;
+
+    if (!user) {
+      throw new UnauthorizedException("User not authorized");
+    }
+
+    const userWithPreferences =
+      await this.userService.getUserWithPreferencesById(user.id);
+
+    if (!userWithPreferences || !userWithPreferences.userPreferences) {
+      throw new UnauthorizedException("User preferences not found");
+    }
+
+    if (!userWithPreferences.userPreferences.enable2FA) {
+      return {
+        message: "MFA is not enabled",
+        userPreferences: {
+          enable2FA: userWithPreferences.userPreferences.enable2FA,
+        },
+      };
+    }
+
+    // Update the user's preferences to disable 2FA
+
+    const updatedUsersPreferences =
+      await this.userService.updateUserPreferencesByUserId({
+        userId: user.id,
+        data: {
+          twoFactorSecret: null,
+          enable2FA: false,
+        },
+      });
+
+    return {
+      message: "MFA revoked successfully",
+      userPreferences: {
+        enable2FA: updatedUsersPreferences.enable2FA,
+      },
+    };
+  }
 }

@@ -40,4 +40,13 @@ export class MfaController {
       userPreferences,
     });
   });
+
+  public revokeMFA = asyncHandler(async (req: Request, res: Response) => {
+    const { message, userPreferences } = await this.mfaService.revokeMFA(req);
+
+    return res.status(HTTPSTATUS.OK).json({
+      message,
+      userPreferences,
+    });
+  });
 }
