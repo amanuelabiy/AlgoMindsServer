@@ -16,7 +16,7 @@ export class UserService {
   }
 
   public async createUser(data: RegisterDto): Promise<User> {
-    const { firstName, lastName, email, password } = data;
+    const { firstName, lastName, email, password, username } = data;
 
     // Hash Password
     const hashPassword = await this.hashPassword(password, 10);
@@ -26,11 +26,16 @@ export class UserService {
       lastName,
       email,
       password: hashPassword,
+      username,
     });
   }
 
   public async findByEmail(email: string): Promise<User | null> {
     return await this.userRepository.findByEmail(email);
+  }
+
+  public async findByUsername(username: string): Promise<User | null> {
+    return await this.userRepository.findByUsername(username);
   }
 
   public async findByIdAndUpdate(data: FindByIdAndUpdateDto): Promise<User> {

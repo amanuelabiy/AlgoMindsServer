@@ -67,6 +67,17 @@ export class AuthService {
       );
     }
 
+    const userNameMatch = await this.userService.findByUsername(
+      registerData.username
+    );
+
+    if (userNameMatch) {
+      throw new BadRequestException(
+        "Username already exists",
+        ErrorCode.AUTH_USERNAME_ALREADY_EXISTS
+      );
+    }
+
     // Create user (password is hashed in the service)
     const newUser = await this.userService.createUser(registerData);
 

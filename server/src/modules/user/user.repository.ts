@@ -61,4 +61,10 @@ export class UserRepository {
       data: data,
     });
   }
+
+  public async findByUsername(username: string) {
+    return prismaClient.user.findUnique({
+      where: { username },
+    });
+  }
 }
