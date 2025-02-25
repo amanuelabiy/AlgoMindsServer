@@ -1,7 +1,9 @@
 import { OpenAI } from "openai";
+import { getEnv } from "../../common/utils/get-env";
+import { config } from "../../config/app.config";
 // Initialize with your API key
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey:config.OPEN_API_KEY,
 });
 export class OpenAIService {
   public async runPrompt(prompt: string): Promise<string> {
