@@ -17,6 +17,7 @@ import passport from "./middlewares/passport";
 import { authenticateJWT } from "./common/strategies/jwt.strategy";
 import sessionRoutes from "./modules/session/session.routes";
 import mfaRoutes from "./modules/mfa/mfa.routes";
+import submissionRoutes from "./modules/submission/submission.routes";
 
 
 const app = express();
@@ -45,12 +46,13 @@ app.get(
 app.use(`${BASE_PATH}/auth`, authRoutes);
 app.use(`${BASE_PATH}/mfa`, mfaRoutes);
 app.use(`${BASE_PATH}/problems`, problemRoutes);
+app.use(`${BASE_PATH}/submission`, submissionRoutes);
+
 
 // OpenAI API test route
 app.use(`${BASE_PATH}/testai`, openAIRoutes);
 // Judge0 API test route
 app.use(`${BASE_PATH}/judge0`, judge0Routes);
-
 
 // Authenticate JWT token for all routes under /session
 app.use(`${BASE_PATH}/session`, authenticateJWT, sessionRoutes);

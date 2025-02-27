@@ -8,7 +8,7 @@ export class ProblemService {
     this.problemRepository = problemRepository;
   }
 
-  public async getProblem(id: number): Promise<Problem> {
+  public async getProblem(id: string): Promise<Problem> {
     const problem = await this.problemRepository.findById(id);
     if (!problem) {
       throw new Error(`Problem with id ${id} not found`);
