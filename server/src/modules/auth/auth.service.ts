@@ -1,14 +1,23 @@
 import { User } from "@prisma/client";
 import { ErrorCode } from "../../common/enums/error-code.enum";
-import { LoginDto, RegisterDto } from "../../common/interface/authDto";
+import {
+  LoginDto,
+  RegisterDto,
+  ResetPasswordDto,
+} from "../../common/interface/authDto";
 import {
   BadRequestException,
+  HttpException,
+  InternalServerException,
+  NotFoundException,
   UnauthorizedException,
 } from "../../common/utils/catch-errors";
 import {
+  anHourFromNow,
   calculateExpirationDate,
   fortyFiveMinutesFromNow,
   ONE_DAY_IN_MS,
+  threeMinutesAgo,
 } from "../../common/utils/date-time";
 import { UserService } from "../user/user.service";
 import { VerificationCodeService } from "../verificationCode/verificationCode.service";
@@ -26,7 +35,11 @@ import {
 } from "../../common/utils/jwt";
 import { VerficationEnum } from "@prisma/client";
 import { sendEmail } from "../../mailers/mailer";
-import { verifyEmailTemplate } from "../../mailers/templates/templates";
+import {
+  passwordResetTemplate,
+  verifyEmailTemplate,
+} from "../../mailers/templates/templates";
+import { HTTPSTATUS } from "../../config/http.config";
 
 export class AuthService {
   private userService: UserService;
@@ -51,6 +64,17 @@ export class AuthService {
       throw new BadRequestException(
         "User already exists with this email",
         ErrorCode.AUTH_EMAIL_ALREADY_EXISTS
+      );
+    }
+
+    const userNameMatch = await this.userService.findByUsername(
+      registerData.username
+    );
+
+    if (userNameMatch) {
+      throw new BadRequestException(
+        "Username already exists",
+        ErrorCode.AUTH_USERNAME_ALREADY_EXISTS
       );
     }
 
@@ -105,6 +129,16 @@ export class AuthService {
     }
 
     //TODO: Check if the user enable 2fa return user= null
+    const userWithPreferences =
+      await this.userService.getUserWithPreferencesById(user.id);
+    if (userWithPreferences?.userPreferences?.enable2FA) {
+      return {
+        user: null,
+        mfaRequired: true,
+        accessToken: "",
+        refreshToken: "",
+      };
+    }
 
     const session = await this.sessionService.createSession({
       userId: user.id,
@@ -221,5 +255,104 @@ export class AuthService {
     return {
       user: updatedUser,
     };
+  }
+
+  public async forgotPassword(email: string) {
+    const user = await this.userService.findByEmail(email);
+
+    if (!user) {
+      throw new NotFoundException(
+        "User not found",
+        ErrorCode.AUTH_USER_NOT_FOUND
+      );
+    }
+
+    // check mail rate limit is 2 emails per 3 or 10 minutes
+
+    const timeAgo = threeMinutesAgo();
+    const maxAttempts = 2;
+
+    const count = await this.verificationCodeService.countRecentCodes({
+      userId: user.id,
+      type: VerficationEnum.PASSWORD_RESET,
+      timeAgo,
+    });
+
+    if (count >= maxAttempts) {
+      throw new HttpException(
+        "Too many requests, try again later",
+        HTTPSTATUS.TOO_MANY_REQUESTS,
+        ErrorCode.AUTH_TOO_MANY_ATTEMPTS
+      );
+    }
+
+    const expiresAt = anHourFromNow();
+
+    const validCode = await this.verificationCodeService.createVerificationCode(
+      {
+        userId: user.id,
+        type: VerficationEnum.PASSWORD_RESET,
+        expiresAt,
+      }
+    );
+
+    const resetLink = `${config.APP_ORIGIN}/reset-password?code=${
+      validCode.id
+    }&expiresAt=${expiresAt.getTime()}`;
+
+    const { data, error } = await sendEmail({
+      to: user.email,
+      ...passwordResetTemplate(resetLink),
+    });
+
+    if (!data?.id) {
+      throw new InternalServerException(`${error?.name} ${error?.message}`);
+    }
+
+    return {
+      url: resetLink,
+      emailId: data.id,
+    };
+  }
+
+  public async resetPassword({ password, verificationCode }: ResetPasswordDto) {
+    const validCode = await this.verificationCodeService.findByCodeAndType({
+      id: verificationCode,
+      type: VerficationEnum.PASSWORD_RESET,
+      expiresAt: new Date(),
+    });
+
+    if (!validCode) {
+      throw new NotFoundException("Invalid or expired verification code");
+    }
+
+    const saltRounds = 10;
+    const hashedPassword = await this.userService.hashPassword(
+      password,
+      saltRounds
+    );
+
+    const updatedUser = await this.userService.findByIdAndUpdate({
+      id: validCode.userId,
+      data: { password: hashedPassword },
+    });
+
+    if (!updatedUser) {
+      throw new BadRequestException("Failed to reset password");
+    }
+
+    // Delete the verification code
+    await this.verificationCodeService.deleteVerificationCodeById(validCode.id);
+
+    // Delete all sessions for the user
+    await this.sessionService.deleteManySessionsByUserId(validCode.userId);
+
+    return {
+      user: updatedUser,
+    };
+  }
+
+  public async logout(sessionId: string) {
+    return await this.sessionService.deleteSessionById(sessionId);
   }
 }

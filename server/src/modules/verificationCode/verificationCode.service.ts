@@ -1,5 +1,6 @@
 import { VerificationCode } from "@prisma/client";
 import {
+  CountRecentCodesDto,
   CreateVerificationCodeDto,
   FindByCodeAndTypeDto,
 } from "../../common/interface/verificationCode";
@@ -30,5 +31,9 @@ export class VerificationCodeService {
     id: string
   ): Promise<VerificationCode> {
     return this.verificationCodeRepository.deleteVerificationCodeById(id);
+  }
+
+  public countRecentCodes(data: CountRecentCodesDto): Promise<number> {
+    return this.verificationCodeRepository.countRecentCodes(data);
   }
 }

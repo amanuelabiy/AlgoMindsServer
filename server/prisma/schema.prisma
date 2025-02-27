@@ -23,6 +23,7 @@ model User {
   id               String             @id @default(uuid())
   firstName        String
   lastName         String
+  username         String             @unique
   isEmailVerified  Boolean            @default(false)
   email            String             @unique
   password         String
@@ -86,7 +87,6 @@ model Problem {
   answer_python     String?
   answer_javascript String?
   explanation       String?
-  
- 
+
   @@map("problems")
 }

@@ -3,17 +3,23 @@ import { asyncHandler } from "../../middlewares/asyncHandler";
 import { AuthService } from "./auth.service";
 import { HTTPSTATUS } from "../../config/http.config";
 import {
+  emailSchema,
   loginSchema,
   registerSchema,
+  resetPasswordSchema,
   verificationEmailSchema,
 } from "../../common/validators/auth.validator";
 import { omitSensitive } from "../../common/utils/omitSensitive";
 import {
+  clearAuthenticationCookies,
   getAccessTokenCookieOptions,
   getRefreshTokenCookieOptions,
   setAuthenticationCookies,
 } from "../../common/utils/cookie";
-import { UnauthorizedException } from "../../common/utils/catch-errors";
+import {
+  NotFoundException,
+  UnauthorizedException,
+} from "../../common/utils/catch-errors";
 
 export class AuthController {
   private authService: AuthService;
@@ -45,8 +51,24 @@ export class AuthController {
         userAgent,
       });
 
+      /* Inside of Auth Service we are doing password and if the user exists
+       So if the second if(!user) gets hit there was an error in receiving the user from the service
+      That is why its a NotFoundException and not n UnauthorizedException
+      */
       const { user, accessToken, refreshToken, mfaRequired } =
         await this.authService.login(body);
+
+      if (mfaRequired && !user) {
+        return res.status(HTTPSTATUS.OK).json({
+          message: "Verify MFA authentication",
+          mfaRequired,
+          data: user,
+        });
+      }
+
+      if (!user) {
+        throw new NotFoundException("User not found");
+      }
 
       return setAuthenticationCookies({
         res,
@@ -98,6 +120,43 @@ export class AuthController {
 
       return res.status(HTTPSTATUS.OK).json({
         message: "Email verified successfully",
+      });
+    }
+  );
+
+  public forgotPassword = asyncHandler(
+    async (req: Request, res: Response): Promise<any> => {
+      const email = emailSchema.parse(req.body.email);
+      await this.authService.forgotPassword(email);
+
+      return res
+        .status(HTTPSTATUS.OK)
+        .json({ message: "Password reset email sent" });
+    }
+  );
+
+  public resetPassword = asyncHandler(
+    async (req: Request, res: Response): Promise<any> => {
+      const body = resetPasswordSchema.parse(req.body);
+
+      await this.authService.resetPassword(body);
+
+      return clearAuthenticationCookies(res).status(HTTPSTATUS.OK).json({
+        message: "Reset Password Successfully",
+      });
+    }
+  );
+
+  public logout = asyncHandler(
+    async (req: Request, res: Response): Promise<any> => {
+      console.log("req.sessionId", req.sessionId);
+      const sessionId = req.sessionId;
+      if (!sessionId) {
+        throw new NotFoundException("Session is invalid");
+      }
+      await this.authService.logout(sessionId);
+      return clearAuthenticationCookies(res).status(HTTPSTATUS.OK).json({
+        message: "User logged out successfully",
       });
     }
   );
