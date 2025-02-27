@@ -16,9 +16,14 @@ const appConfig = () => ({
   RESEND_API_KEY: getEnv("RESEND_API_KEY"),
   EMAIL_SENDER: getEnv("EMAIL_SENDER"),
   MAILER_RECEIVER: getEnv("MAILER_RECEIVER"),
+  JUDGE0_API_BASE_URL: getEnv("JUDGE0_API_BASE_URL"),
+  JUDGE0_HEADERS :getEnv("JUDGE0_HEADERS") ? JSON.parse(getEnv("JUDGE0_HEADERS")): "",
+  OPEN_API_KEY: getEnv("OPEN_API_KEY")
+  
 });
 
 export const JWT_EXPIRES_IN = "15m";
 export const JWT_REFRESH_EXPIRES_IN = "30d";
+
 
 export const config = appConfig();
