@@ -3,28 +3,20 @@ import { HTTPSTATUS } from "../../config/http.config";
 import { asyncHandler } from "../../middlewares/asyncHandler";
 import { OpenAIService } from "./openai.service";
 
-
-
 export class OpenAIController {
-    private openAIService: OpenAIService;
+  private openAIService: OpenAIService;
 
-
-constructor(openAIService: OpenAIService) {
+  constructor(openAIService: OpenAIService) {
     this.openAIService = openAIService;
-}
+  }
 
-public runPrompt = asyncHandler(
+  public runPrompt = asyncHandler(
     async (req: Request, res: Response): Promise<any> => {
-        
-        
-        const response = await this.openAIService.runPrompt(req.params.submission);
-        
-        return res
-        .status(HTTPSTATUS.CREATED)
-        .json({message: response,
-        });
-    }
-)
+      const response = await this.openAIService.runPrompt(
+        req.params.submission
+      );
 
-  
+      return res.status(HTTPSTATUS.CREATED).json({ message: response });
+    }
+  );
 }

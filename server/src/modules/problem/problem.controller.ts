@@ -12,13 +12,15 @@ export class ProblemController {
 
   public getProblem = asyncHandler(
     async (req: Request, res: Response): Promise<any> => {
-      const problem = await this.problemService.getProblem(
-        (req.params.id)
-      );
+      const problem = await this.problemService.getProblem(req.params.id);
 
       return res
         .status(HTTPSTATUS.OK)
-        .json({ message: "Problem Found!", title: problem.title, desc: problem.content });
+        .json({
+          message: "Problem Found!",
+          title: problem.title,
+          desc: problem.content,
+        });
     }
   );
 }

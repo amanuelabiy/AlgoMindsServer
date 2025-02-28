@@ -3,14 +3,14 @@ import { getEnv } from "../../common/utils/get-env";
 import { config } from "../../config/app.config";
 // Initialize with your API key
 const openai = new OpenAI({
-  apiKey:config.OPEN_API_KEY,
+  apiKey: config.OPEN_API_KEY,
 });
 export class OpenAIService {
   public async runPrompt(prompt: string): Promise<string> {
     try {
       const response = await openai.chat.completions.create({
         model: "gpt-4o", // or whichever model your version supports
-        messages:[{role:'user', content: prompt}], 
+        messages: [{ role: "user", content: prompt }],
         max_tokens: 100,
         temperature: 0.7,
       });
