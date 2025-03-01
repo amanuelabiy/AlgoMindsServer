@@ -1,6 +1,7 @@
 import { VerificationCode } from "@prisma/client";
 import {
   CountRecentCodesDto,
+  CreatePasswordResetVerificationCodeDto,
   CreateVerificationCodeDto,
   FindByCodeAndTypeDto,
 } from "../../common/interface/verificationCode";
@@ -17,6 +18,14 @@ export class VerificationCodeService {
     verificationCodeData: CreateVerificationCodeDto
   ): Promise<VerificationCode> {
     return this.verificationCodeRepository.createVerificationCode(
+      verificationCodeData
+    );
+  }
+
+  public async createPasswordResetVerificationCode(
+    verificationCodeData: CreatePasswordResetVerificationCodeDto
+  ) {
+    return this.verificationCodeRepository.createPasswordResetVerificationCode(
       verificationCodeData
     );
   }

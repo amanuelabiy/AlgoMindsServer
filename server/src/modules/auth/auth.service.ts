@@ -41,6 +41,7 @@ import {
 } from "../../mailers/templates/templates";
 import { HTTPSTATUS } from "../../config/http.config";
 import { WaitListService } from "../waitlist/waitlist.service";
+import generateSixDigitCode from "../../common/utils/generateSixDigitCode";
 
 export class AuthService {
   private userService: UserService;
@@ -287,30 +288,26 @@ export class AuthService {
     });
 
     if (count >= maxAttempts) {
-      throw new HttpException(
-        "Too many requests, try again later",
-        HTTPSTATUS.TOO_MANY_REQUESTS,
-        ErrorCode.AUTH_TOO_MANY_ATTEMPTS
-      );
+      return;
     }
 
     const expiresAt = anHourFromNow();
 
-    const validCode = await this.verificationCodeService.createVerificationCode(
-      {
+    const validCode =
+      await this.verificationCodeService.createPasswordResetVerificationCode({
         userId: user.id,
         type: VerficationEnum.PASSWORD_RESET,
+        code: generateSixDigitCode(),
         expiresAt,
-      }
-    );
+      });
 
-    const resetLink = `${config.APP_ORIGIN}/reset-password?code=${
-      validCode.id
-    }&expiresAt=${expiresAt.getTime()}`;
+    if (!validCode.code) {
+      throw new InternalServerException("Failed to create verification code");
+    }
 
     const { data, error } = await sendEmail({
       to: user.email,
-      ...passwordResetTemplate(resetLink),
+      ...passwordResetTemplate(validCode.code),
     });
 
     if (!data?.id) {
@@ -318,7 +315,6 @@ export class AuthService {
     }
 
     return {
-      url: resetLink,
       emailId: data.id,
     };
   }

@@ -1,6 +1,8 @@
+import { colors } from "../../common/utils/constants";
+
 export const verifyEmailTemplate = (
   url: string,
-  brandColor: string = "#2563EB"
+  brandColor: string = colors.secondaryColor
 ) => ({
   subject: "Confirm your AlgoRivals account",
   text: `Please verify your email address by clicking the following link: ${url}`,
@@ -34,7 +36,7 @@ export const verifyEmailTemplate = (
 
 export const passwordResetTemplate = (
   url: string,
-  brandColor: string = "#2563EB"
+  brandColor: string = colors.secondaryColor
 ) => ({
   subject: "Reset Your Password",
   text: `To reset your password, please click the following link: ${url}`,
@@ -68,7 +70,7 @@ export const passwordResetTemplate = (
 
 export const waitListTemplate = (
   url: string,
-  brandColor: string = "#2563EB"
+  brandColor: string = colors.secondaryColor
 ) => ({
   subject: "Welcome to AlgoRivals",
   text: `Thank you for joining the AlgoRivals waitlist! Click the following link to learn more: ${url}`,

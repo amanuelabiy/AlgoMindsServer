@@ -15,6 +15,14 @@ export class VerificationCodeRepository {
     });
   }
 
+  public async createPasswordResetVerificationCode(
+    data: CreateVerificationCodeDto
+  ): Promise<VerificationCode> {
+    return prismaClient.verificationCode.create({
+      data,
+    });
+  }
+
   public async findVerificationTokenById(
     id: string
   ): Promise<VerificationCode | null> {
