@@ -14,7 +14,7 @@ export class WaitListController {
 
   public addToWaitList = asyncHandler(
     async (req: Request, res: Response): Promise<any> => {
-      const email = emailSchema.parse(req.body);
+      const email = emailSchema.parse(req.body.email);
       console.log("email", email);
 
       if (!email) {

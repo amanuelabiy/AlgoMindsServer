@@ -8,4 +8,12 @@ export class WaitListRepository {
       },
     });
   }
+
+  public async findByEmail(email: string) {
+    return prismaClient.waitlist.findUnique({
+      where: {
+        email,
+      },
+    });
+  }
 }
