@@ -12,6 +12,7 @@ export const usernameSchema = z
     /^[a-zA-Z0-9_-]+$/,
     "Username can only contain letters, numbers, underscores, and hyphens"
   );
+export const passwordResetVerificationCode = z.string().length(6);
 
 export const registerSchema = z
   .object({
@@ -39,5 +40,5 @@ export const verificationEmailSchema = z.object({
 
 export const resetPasswordSchema = z.object({
   password: passwordSchema,
-  verificationCode: verificationCodeSchema,
+  verificationCode: passwordResetVerificationCode,
 });

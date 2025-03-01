@@ -302,7 +302,7 @@ export class AuthService {
       });
 
     if (!validCode.code) {
-      throw new InternalServerException("Failed to create verification code");
+      return;
     }
 
     const { data, error } = await sendEmail({
@@ -320,11 +320,12 @@ export class AuthService {
   }
 
   public async resetPassword({ password, verificationCode }: ResetPasswordDto) {
-    const validCode = await this.verificationCodeService.findByCodeAndType({
-      id: verificationCode,
-      type: VerficationEnum.PASSWORD_RESET,
-      expiresAt: new Date(),
-    });
+    const validCode =
+      await this.verificationCodeService.findPasswordResetVerification({
+        code: verificationCode,
+        type: VerficationEnum.PASSWORD_RESET,
+        expiresAt: new Date(),
+      });
 
     if (!validCode) {
       throw new NotFoundException("Invalid or expired verification code");

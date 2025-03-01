@@ -141,12 +141,10 @@ export class AuthController {
       const email = emailSchema.parse(req.body.email);
       await this.authService.forgotPassword(email);
 
-      return res
-        .status(HTTPSTATUS.OK)
-        .json({
-          message:
-            "If an account with that email exists, you will receive a password reset email shortly.",
-        });
+      return res.status(HTTPSTATUS.OK).json({
+        message:
+          "If an account with that email exists, you will receive a password reset email shortly.",
+      });
     }
   );
 

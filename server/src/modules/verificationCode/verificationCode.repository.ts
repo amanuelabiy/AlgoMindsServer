@@ -4,6 +4,7 @@ import {
   CreateVerificationCodeDto,
   FindByCodeAndTypeDto,
   CountRecentCodesDto,
+  FindPasswordResetVerificationDto,
 } from "../../common/interface/verificationCode";
 
 export class VerificationCodeRepository {
@@ -37,6 +38,20 @@ export class VerificationCodeRepository {
     return prismaClient.verificationCode.findFirst({
       where: {
         id,
+        type,
+        expiresAt: { gt: expiresAt },
+      },
+    });
+  }
+
+  public async findPasswordResetVerification({
+    code,
+    expiresAt,
+    type,
+  }: FindPasswordResetVerificationDto) {
+    return prismaClient.verificationCode.findFirst({
+      where: {
+        code,
         type,
         expiresAt: { gt: expiresAt },
       },

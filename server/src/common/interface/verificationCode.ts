@@ -13,6 +13,12 @@ export interface CreatePasswordResetVerificationCodeDto {
   code: string;
 }
 
+export interface FindPasswordResetVerificationDto {
+  code: string;
+  type: VerficationEnum;
+  expiresAt: Date;
+}
+
 export interface FindByCodeAndTypeDto {
   id: string;
   type: VerficationEnum;
