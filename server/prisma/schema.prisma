@@ -32,7 +32,7 @@ model User {
   userPreferences  UserPreferences?
   Session          Session[]
   VerificationCode VerificationCode[]
-  submissions  Submission[] // This creates the reverse relation to Submission
+  submissions      Submission[] // This creates the reverse relation to Submission
 
   @@map("users")
 }
@@ -78,8 +78,8 @@ model VerificationCode {
 }
 
 model Problem {
-  id                String     @id @default(uuid())
-  slug              String     @unique
+  id                String       @id @default(uuid())
+  slug              String       @unique
   title             String
   difficulty        String
   content           String
@@ -88,23 +88,30 @@ model Problem {
   answer_python     String?
   answer_javascript String?
   explanation       String?
-  submissions  Submission[] // This creates the reverse relation to Submission
+  submissions       Submission[] // This creates the reverse relation to Submission
 
   @@map("problems")
 }
 
-  model Submission {
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  problem     Problem   @relation(fields: [problem_id], references: [id])
-  problem_id  String
-  submissionId Int    // Submission number per user (resets for each user)
+model Submission {
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem      Problem @relation(fields: [problem_id], references: [id])
+  problem_id   String
+  submissionId Int // Submission number per user (resets for each user)
 
   userId      String
-  submittedAt DateTime  @default(now())
-  submission  String 
+  submittedAt DateTime @default(now())
+  submission  String
 
-
+  @@id([userId, submissionId]) // Composite Primary Key
   @@map("submissions")
-  @@id([userId, submissionId])  // Composite Primary Key
+}
 
+model Waitlist {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("waitlist")
 }

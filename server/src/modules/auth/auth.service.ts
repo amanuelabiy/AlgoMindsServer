@@ -250,6 +250,8 @@ export class AuthService {
     // Delete the verification code
     await this.verificationCodeService.deleteVerificationCodeById(validCode.id);
 
+    // Add User to the WaitList
+
     // return updated user
 
     return {
