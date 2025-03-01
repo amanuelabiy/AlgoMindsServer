@@ -331,6 +331,23 @@ export class AuthService {
       throw new NotFoundException("Invalid or expired verification code");
     }
 
+    const user = await this.userService.findById(validCode.userId);
+
+    if (!user) {
+      throw new BadRequestException("Failed to reset password");
+    }
+
+    const isPasswordCurrentPassword = await this.userService.comparePassword(
+      password,
+      user.password
+    );
+
+    if (isPasswordCurrentPassword) {
+      throw new BadRequestException(
+        "Your new password must be different from your current password."
+      );
+    }
+
     const saltRounds = 10;
     const hashedPassword = await this.userService.hashPassword(
       password,
