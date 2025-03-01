@@ -51,3 +51,13 @@ export class HttpException extends AppError {
     super(message, statusCode, errorCode);
   }
 }
+
+export class UnprocessableEntityException extends AppError {
+  constructor(message = "Unprocessable Entity", errorCode?: ErrorCode) {
+    super(
+      message,
+      HTTPSTATUS.UNPROCESSABLE_ENTITY,
+      errorCode || ErrorCode.UNPROCESSABLE_ENTITY
+    );
+  }
+}

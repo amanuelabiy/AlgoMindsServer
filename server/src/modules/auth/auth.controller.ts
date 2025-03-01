@@ -19,6 +19,7 @@ import {
 import {
   NotFoundException,
   UnauthorizedException,
+  UnprocessableEntityException,
 } from "../../common/utils/catch-errors";
 
 export class AuthController {
@@ -116,10 +117,21 @@ export class AuthController {
   public verifyEmail = asyncHandler(
     async (req: Request, res: Response): Promise<any> => {
       const { code } = verificationEmailSchema.parse(req.body);
-      await this.authService.verifyEmail(code);
+      const { user, waitListData } = await this.authService.verifyEmail(code);
+
+      if (!user) {
+        throw new NotFoundException("Invalid verification code");
+      }
+
+      if (!waitListData && user) {
+        throw new UnprocessableEntityException(
+          "Email was verified, but user was not added to the waitlist"
+        );
+      }
 
       return res.status(HTTPSTATUS.OK).json({
-        message: "Email verified successfully",
+        message:
+          "Email verified successfully. You have been added to the waitlist",
       });
     }
   );

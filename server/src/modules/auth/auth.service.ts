@@ -40,20 +40,24 @@ import {
   verifyEmailTemplate,
 } from "../../mailers/templates/templates";
 import { HTTPSTATUS } from "../../config/http.config";
+import { WaitListService } from "../waitlist/waitlist.service";
 
 export class AuthService {
   private userService: UserService;
   private verificationCodeService: VerificationCodeService;
   private sessionService: SessionService;
+  private waitListService: WaitListService;
 
   constructor(
     userService: UserService,
     verificationCodeService: VerificationCodeService,
-    sessionService: SessionService
+    sessionService: SessionService,
+    waitListService: WaitListService
   ) {
     this.userService = userService;
     this.sessionService = sessionService;
     this.verificationCodeService = verificationCodeService;
+    this.waitListService = waitListService;
   }
 
   public async register(registerData: RegisterDto): Promise<{ user: User }> {
@@ -252,10 +256,15 @@ export class AuthService {
 
     // Add User to the WaitList
 
+    const waitListData = await this.waitListService.addToWaitList(
+      updatedUser.email
+    );
+
     // return updated user
 
     return {
       user: updatedUser,
+      waitListData,
     };
   }
 
