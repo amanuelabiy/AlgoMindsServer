@@ -7,7 +7,6 @@ import {
 } from "../../common/interface/authDto";
 import {
   BadRequestException,
-  HttpException,
   InternalServerException,
   NotFoundException,
   UnauthorizedException,
@@ -22,11 +21,7 @@ import {
 import { UserService } from "../user/user.service";
 import { VerificationCodeService } from "../verificationCode/verificationCode.service";
 import { SessionService } from "../session/session.service";
-import {
-  config,
-  JWT_EXPIRES_IN,
-  JWT_REFRESH_EXPIRES_IN,
-} from "../../config/app.config";
+import { config, JWT_REFRESH_EXPIRES_IN } from "../../config/app.config";
 import {
   refreshTokenSignOptions,
   RefreshTPayload,
@@ -39,7 +34,6 @@ import {
   passwordResetTemplate,
   verifyEmailTemplate,
 } from "../../mailers/templates/templates";
-import { HTTPSTATUS } from "../../config/http.config";
 import { WaitListService } from "../waitlist/waitlist.service";
 import generateSixDigitCode from "../../common/utils/generateSixDigitCode";
 
