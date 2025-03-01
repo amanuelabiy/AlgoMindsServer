@@ -272,10 +272,7 @@ export class AuthService {
     const user = await this.userService.findByEmail(email);
 
     if (!user) {
-      throw new NotFoundException(
-        "User not found",
-        ErrorCode.AUTH_USER_NOT_FOUND
-      );
+      return;
     }
 
     // check mail rate limit is 2 emails per 3 or 10 minutes

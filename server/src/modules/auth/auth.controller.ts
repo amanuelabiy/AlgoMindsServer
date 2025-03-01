@@ -143,7 +143,10 @@ export class AuthController {
 
       return res
         .status(HTTPSTATUS.OK)
-        .json({ message: "Password reset email sent" });
+        .json({
+          message:
+            "If an account with that email exists, you will receive a password reset email shortly.",
+        });
     }
   );
 
