@@ -21,7 +21,10 @@ export class WaitListController {
         throw new UnauthorizedException("Email is required");
       }
 
-      const userWaitListData = await this.waitListService.addToWaitList(email);
+      const userWaitListData = await this.waitListService.addToWaitList(
+        email,
+        null
+      );
 
       return res.status(HTTPSTATUS.CREATED).json(userWaitListData);
     }

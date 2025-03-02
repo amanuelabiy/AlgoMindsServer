@@ -66,14 +66,27 @@ export class AuthService {
       );
     }
 
+    // Check if the username is already taken
     const userNameMatch = await this.userService.findByUsername(
       registerData.username
     );
 
     if (userNameMatch) {
       throw new BadRequestException(
-        "Username already exists",
+        "Username is already taken",
         ErrorCode.AUTH_USERNAME_ALREADY_EXISTS
+      );
+    }
+
+    // Check if the email is claimed by a waitlist user
+    const waitListUser = await this.waitListService.findWaitListEmail(
+      registerData.email
+    );
+
+    if (waitListUser) {
+      throw new BadRequestException(
+        "Email is already claimed by a waitlist user",
+        ErrorCode.WAITLIST_EMAIL_ALREADY_EXISTS
       );
     }
 
@@ -252,6 +265,7 @@ export class AuthService {
     // Add User to the WaitList
 
     const waitListData = await this.waitListService.addToWaitList(
+      updatedUser.email,
       updatedUser.email
     );
 

@@ -142,7 +142,7 @@ export class AuthController {
       await this.authService.resendVerificationEmail(code);
 
       return res.status(HTTPSTATUS.OK).json({
-        message: "Verification email sent successfully",
+        message: "Verification email resent successfully",
       });
     }
   );
