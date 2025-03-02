@@ -87,7 +87,7 @@ export class AuthService {
     const verificationCode =
       await this.verificationCodeService.createVerificationCode({
         userId,
-        type: "EMAIL_VERIFICATION",
+        type: VerficationEnum.EMAIL_VERIFICATION,
         expiresAt: fortyFiveMinutesFromNow(),
       });
 
@@ -310,6 +310,62 @@ export class AuthService {
 
     return {
       emailId: data.id,
+    };
+  }
+
+  public async resendVerificationEmail(code: string) {
+    const validCode = await this.verificationCodeService.findByIdAndType({
+      id: code,
+      type: VerficationEnum.EMAIL_VERIFICATION,
+    });
+
+    if (!validCode) {
+      throw new NotFoundException("Invalid verification code");
+    }
+
+    const user = await this.userService.findById(validCode.userId);
+
+    if (!user) {
+      throw new BadRequestException("User not found");
+    }
+
+    // check mail rate limit is 2 emails per 3 or 10 minutes
+
+    const timeAgo = threeMinutesAgo();
+    const maxAttempts = 2;
+
+    const count = await this.verificationCodeService.countRecentCodes({
+      userId: user.id,
+      type: VerficationEnum.EMAIL_VERIFICATION,
+      timeAgo,
+    });
+
+    if (count >= maxAttempts) {
+      throw new BadRequestException("Too many requests");
+    }
+
+    // Delete the verification code
+    await this.verificationCodeService.deleteVerificationCodeById(validCode.id);
+
+    // Create a verification token
+
+    const verificationCode =
+      await this.verificationCodeService.createVerificationCode({
+        userId: user.id,
+        type: VerficationEnum.EMAIL_VERIFICATION,
+        expiresAt: fortyFiveMinutesFromNow(),
+      });
+
+    // Send the verification email link
+
+    const verificationUrl = `${config.APP_ORIGIN}/confirm-account?code=${verificationCode.id}`;
+    await sendEmail({
+      to: user.email,
+      ...verifyEmailTemplate(verificationUrl),
+    });
+
+    return {
+      message: "Verification email sent successfully",
     };
   }
 

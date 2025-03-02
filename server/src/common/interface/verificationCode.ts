@@ -25,6 +25,11 @@ export interface FindByCodeAndTypeDto {
   expiresAt: Date;
 }
 
+export interface FindByIdAndTypeDto {
+  id: string;
+  type: VerficationEnum;
+}
+
 export interface CountRecentCodesDto {
   userId: string;
   type: VerficationEnum;

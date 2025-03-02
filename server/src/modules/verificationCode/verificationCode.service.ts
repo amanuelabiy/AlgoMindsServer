@@ -4,6 +4,7 @@ import {
   CreatePasswordResetVerificationCodeDto,
   CreateVerificationCodeDto,
   FindByCodeAndTypeDto,
+  FindByIdAndTypeDto,
   FindPasswordResetVerificationDto,
 } from "../../common/interface/verificationCode";
 import { VerificationCodeRepository } from "./verificationCode.repository";
@@ -41,6 +42,10 @@ export class VerificationCodeService {
     data: FindPasswordResetVerificationDto
   ): Promise<VerificationCode | null> {
     return this.verificationCodeRepository.findPasswordResetVerification(data);
+  }
+
+  public async findByIdAndType(data: FindByIdAndTypeDto) {
+    return this.verificationCodeRepository.findByIdAndType(data);
   }
 
   public async deleteVerificationCodeById(

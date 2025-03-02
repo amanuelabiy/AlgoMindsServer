@@ -136,6 +136,17 @@ export class AuthController {
     }
   );
 
+  public resendVerificationEmail = asyncHandler(
+    async (req: Request, res: Response): Promise<any> => {
+      const { code } = verificationEmailSchema.parse(req.body);
+      await this.authService.resendVerificationEmail(code);
+
+      return res.status(HTTPSTATUS.OK).json({
+        message: "Verification email sent successfully",
+      });
+    }
+  );
+
   public forgotPassword = asyncHandler(
     async (req: Request, res: Response): Promise<any> => {
       const email = emailSchema.parse(req.body.email);
