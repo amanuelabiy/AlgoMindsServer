@@ -17,14 +17,12 @@ export class SubmissionController {
       Number(submissionid),
       userid
     );
-    return res
-      .status(HTTPSTATUS.CREATED)
-      .json({
-        message: "Submission Found!",
-        problem: submission.problem_id,
-        submitted_at: submission.submittedAt,
-        submission_code: submission.submission,
-      });
+    return res.status(HTTPSTATUS.CREATED).json({
+      message: "Submission Found!",
+      problem: submission.problem_id,
+      submitted_at: submission.submittedAt,
+      submission_code: submission.submission,
+    });
   });
 
   public submitSubmission = asyncHandler(
