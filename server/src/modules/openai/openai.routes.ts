@@ -1,8 +1,8 @@
-// import { Router } from "express";
-// import { openAIController } from "./openai.module";
+import { Router } from "express";
+import { openAIController } from "./openai.module";
 
-// const openAIRoutes = Router();
+const openAIRoutes = Router();
 
-// openAIRoutes.get("/:submission", openAIController.runPrompt);
+openAIRoutes.get("/createtestcase", openAIController.CreateTestCases);
 
-// export default openAIRoutes;
+export default openAIRoutes;

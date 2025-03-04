@@ -10,10 +10,14 @@ export class OpenAIController {
     this.openAIService = openAIService;
   }
 
-  public runPrompt = asyncHandler(
+  public CreateTestCases = asyncHandler(
     async (req: Request, res: Response): Promise<any> => {
-      const response = await this.openAIService.runPrompt(
-        req.params.submission
+      console.log("Received request body:", req.body); // Debugging
+
+      const { problem_id, language } = req.body;
+
+      const response = await this.openAIService.CreateTestCases(problem_id,language
+
       );
 
       return res.status(HTTPSTATUS.CREATED).json({ message: response });

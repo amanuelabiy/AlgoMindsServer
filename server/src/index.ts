@@ -14,6 +14,7 @@ import { authenticateJWT } from "./common/strategies/jwt.strategy";
 import sessionRoutes from "./modules/session/session.routes";
 import mfaRoutes from "./modules/mfa/mfa.routes";
 import waitListRoutes from "./modules/waitlist/waitlist.routes";
+import openAIRoutes from "./modules/openai/openai.routes";
 
 const app = express();
 const BASE_PATH = config.BASE_PATH;
@@ -45,7 +46,7 @@ app.use(`${BASE_PATH}/waitlist`, waitListRoutes);
 // app.use(`${BASE_PATH}/submission`, submissionRoutes);
 
 // OpenAI API test route
-// app.use(`${BASE_PATH}/testai`, openAIRoutes);
+app.use(`${BASE_PATH}/testai`, openAIRoutes);
 // // Judge0 API test route
 // app.use(`${BASE_PATH}/judge0`, judge0Routes);
 

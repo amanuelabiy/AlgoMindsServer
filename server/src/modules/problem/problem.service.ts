@@ -15,4 +15,12 @@ export class ProblemService {
     }
     return problem;
   }
+  public async getSolutionByLanguage(problem_id: string, langauge: string){
+    const solution = await this.problemRepository.findSolutionByLanguage(problem_id, langauge);
+    if (!solution) {
+      throw new Error(`Solution with id: ${problem_id} and langague: ${langauge} not found`);
+    }
+    return solution;
+  }
+
 }
