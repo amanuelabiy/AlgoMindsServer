@@ -8,32 +8,32 @@ export class SubmissionService {
     this.submissionRepository = submissionRepository;
   }
 
-  public async getSubmission(
-    submissionId: number,
-    userId: string
-  ): Promise<Submission> {
-    const submission = await this.submissionRepository.findById(
-      submissionId,
-      userId
-    );
+  // public async getSubmission(
+  //   submissionId: number,
+  //   userId: string
+  // ): Promise<Submission> {
+  //   const submission = await this.submissionRepository.findById(
+  //     submissionId,
+  //     userId
+  //   );
 
-    if (!submission) {
-      throw new Error(
-        `Submission with submissionId ${submissionId} not found for userId ${userId}`
-      );
-    }
-    return submission;
-  }
+  //   if (!submission) {
+  //     throw new Error(
+  //       `Submission with submissionId ${submissionId} not found for userId ${userId}`
+  //     );
+  //   }
+  //   return submission;
+  // }
 
-  public async submitSubmission(
-    submission: string,
-    userId: string,
-    problemId: string
-  ) {
-    const submit = await this.submissionRepository.addSubmission(
-      submission,
-      userId,
-      problemId
-    );
-  }
+  // public async submitSubmission(
+  //   submission: string,
+  //   userId: string,
+  //   problemId: string
+  // ) {
+  //   const submit = await this.submissionRepository.addSubmission(
+  //     submission,
+  //     userId,
+  //     problemId
+  //   );
+  // }
 }

@@ -3,6 +3,6 @@ import { problemController } from "./problem.module";
 
 const problemRoutes = Router();
 
-problemRoutes.get("/:id", problemController.getProblem);
+problemRoutes.get("/", problemController.getProblems);
 
 export default problemRoutes;

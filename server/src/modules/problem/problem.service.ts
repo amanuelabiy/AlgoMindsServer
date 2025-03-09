@@ -8,23 +8,10 @@ export class ProblemService {
     this.problemRepository = problemRepository;
   }
 
-  public async getProblem(id: string): Promise<Problem> {
-    const problem = await this.problemRepository.findById(id);
-    if (!problem) {
-      throw new Error(`Problem with id ${id} not found`);
-    }
-    return problem;
-  }
-  public async getSolutionByLanguage(problem_id: string, langauge: string) {
-    const solution = await this.problemRepository.findSolutionByLanguage(
-      problem_id,
-      langauge
-    );
-    if (!solution) {
-      throw new Error(
-        `Solution with id: ${problem_id} and langague: ${langauge} not found`
-      );
-    }
-    return solution;
+  public async getProblems(
+    cursor?: number,
+    limit: number = 14
+  ): Promise<Problem[]> {
+    return await this.problemRepository.getProblems(cursor, limit);
   }
 }

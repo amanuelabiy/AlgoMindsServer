@@ -12,16 +12,13 @@ export class OpenAIController {
 
   public CreateTestCases = asyncHandler(
     async (req: Request, res: Response): Promise<any> => {
-      console.log("Received request body:", req.body); // Debugging
-
-      const { problem_id, language } = req.body;
-
-      const response = await this.openAIService.CreateTestCases(
-        problem_id,
-        language
-      );
-
-      return res.status(HTTPSTATUS.CREATED).json({ message: response });
+      // console.log("Received request body:", req.body); // Debugging
+      // const { problem_id, language } = req.body;
+      // const response = await this.openAIService.CreateTestCases(
+      //   problem_id,
+      //   language
+      // );
+      // return res.status(HTTPSTATUS.CREATED).json({ message: response });
     }
   );
 }
