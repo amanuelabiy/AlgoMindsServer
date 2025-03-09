@@ -16,8 +16,9 @@ export class OpenAIController {
 
       const { problem_id, language } = req.body;
 
-      const response = await this.openAIService.CreateTestCases(problem_id,language
-
+      const response = await this.openAIService.CreateTestCases(
+        problem_id,
+        language
       );
 
       return res.status(HTTPSTATUS.CREATED).json({ message: response });

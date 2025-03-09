@@ -8,11 +8,17 @@ const openai = new OpenAI({
   apiKey: config.OPEN_API_KEY,
 });
 export class OpenAIService {
-  constructor(private problemService: ProblemService){}
-  public async CreateTestCases(problem_id: string, language: string): Promise<string> {
-    const prompt = `Solution: ${this.problemService.getSolutionByLanguage(problem_id, language)},
+  constructor(private problemService: ProblemService) {}
+  public async CreateTestCases(
+    problem_id: string,
+    language: string
+  ): Promise<string> {
+    const prompt = `Solution: ${this.problemService.getSolutionByLanguage(
+      problem_id,
+      language
+    )},
     Problem Description: 
-     ${getEnv("OPENAI_TESTCASE_PROMPT")}`
+     ${getEnv("OPENAI_TESTCASE_PROMPT")}`;
     try {
       const response = await openai.chat.completions.create({
         model: "gpt-4o", // or whichever model your version supports

@@ -19,6 +19,18 @@ enum VerficationEnum {
   PASSWORD_RESET
 }
 
+enum ProblemDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum Status {
+  NOT_ATTEMPTED
+  ATTEMPTED
+  SOLVED
+}
+
 model User {
   id               String             @id @default(uuid())
   firstName        String
@@ -32,9 +44,30 @@ model User {
   userPreferences  UserPreferences?
   Session          Session[]
   VerificationCode VerificationCode[]
-  submissions      Submission[] // This creates the reverse relation to Submission
+  submissions      Submission[]  // Tracks all submissions made by user
+  userProblems     UserProblem[] // Tracks problem attempts and status for this user
+
+  problemsCreated  Problem[] @relation("UserCreatedProblems")
 
   @@map("users")
+}
+
+model UserProblem {
+  id          String   @id @default(uuid())
+  userId      String   
+  problemId   Int      
+  status      Status   @default(NOT_ATTEMPTED) // User's progress on this problem
+  lastAttempt String?  // Stores the latest submission code by the user
+  passedTests Int      @default(0) // Number of test cases passed
+  totalTests  Int      @default(0) // Total test cases for the problem
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem     Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, problemId])
+  @@map("user_problems")
 }
 
 model UserPreferences {
@@ -79,32 +112,39 @@ model VerificationCode {
 }
 
 model Problem {
-  id                String       @id @default(uuid())
-  slug              String       @unique
-  title             String
-  difficulty        String
-  content           String
-  answer_cplusplus  String?
-  answer_java       String?
-  answer_python     String?
-  answer_javascript String?
-  explanation       String?
-  submissions       Submission[] // This creates the reverse relation to Submission
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  title       String
+  difficulty  ProblemDifficulty
+  status      Status   @default(NOT_ATTEMPTED) // Status of the problem
+  content     String
+  solutions   Json
+  tags        String[]
+  testCases   Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdById String? // Nullable in case it's a system-generated problem
+  createdBy   User?   @relation("UserCreatedProblems", fields: [createdById], references: [id], onDelete: SetNull) // Updated relation
+
+  userProblems UserProblem[] // Links to users who attempted this problem
+  submissions  Submission[]  // All submissions related to this problem
 
   @@map("problems")
 }
 
 model Submission {
-  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  problem      Problem @relation(fields: [problem_id], references: [id])
-  problem_id   String
-  submissionId Int // Submission number per user (resets for each user)
+  id         String   @id @default(uuid())
+  userId     String
+  problemId  Int
+  code       String   // User's submitted code
+  language   String   // Language used for submission
+  passed     Boolean  // Whether the submission passed all test cases
+  createdAt  DateTime @default(now())
 
-  userId      String
-  submittedAt DateTime @default(now())
-  submission  String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
 
-  @@id([userId, submissionId]) // Composite Primary Key
   @@map("submissions")
 }
 

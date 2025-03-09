@@ -2,7 +2,7 @@ import prismaClient from "../../config/prismaClient";
 import { Problem } from "@prisma/client";
 
 export class ProblemRepository {
-  public async findById(id: string): Promise<Problem | null> {
+  public async findById(id: string) {
     return prismaClient.problem.findUnique({
       where: { id },
     });
@@ -21,7 +21,7 @@ export class ProblemRepository {
         answer_javascript: language === "javascript",
         answer_java: language === "java",
         answer_cplusplus: language === "cplusplus",
-      }
+      },
     });
   }
 }
