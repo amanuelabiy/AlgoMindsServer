@@ -1,11 +1,14 @@
 import { CreateSessionDto } from "../../common/interface/sessionDto";
 import { NotFoundException } from "../../common/utils/catch-errors";
+import { UserService } from "../user/user.service";
 import { SessionRepository } from "./session.repository";
 
 export class SessionService {
   private readonly sessionRepository: SessionRepository;
+  private readonly userService: UserService;
 
-  constructor(sessionRepository: SessionRepository) {
+  constructor(sessionRepository: SessionRepository, userService: UserService) {
+    this.userService = userService;
     this.sessionRepository = sessionRepository;
   }
 
@@ -26,7 +29,10 @@ export class SessionService {
 
     const { user } = session;
 
-    return { user };
+    const userWithPreferences =
+      await this.userService.getUserWithPreferencesById(user.id);
+
+    return { user: userWithPreferences };
   }
 
   public async createSession(data: CreateSessionDto) {

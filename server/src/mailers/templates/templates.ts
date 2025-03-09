@@ -4,7 +4,7 @@ export const verifyEmailTemplate = (
   url: string,
   brandColor: string = colors.secondaryColor
 ) => ({
-  subject: "Confirm your AlgoRivals account",
+  subject: "Confirm your AlgoAI account",
   text: `Please verify your email address by clicking the following link: ${url}`,
   html: `
       <html><head><style>
@@ -19,7 +19,7 @@ export const verifyEmailTemplate = (
         .footer { font-size: 14px; color: #999999; text-align: center; padding: 20px; }
       </style></head><body>
         <div class="container">
-          <div class="header">AlgoRivals</div>
+          <div class="header">AlgoAI</div>
           <div class="content">
             <h1>Confirm Your Email Address</h1>
             <p>Thank you for signing up! Please confirm your account by clicking the button below.</p>
@@ -53,7 +53,7 @@ export const passwordResetTemplate = (
         .footer { font-size: 14px; color: #999999; text-align: center; padding: 20px; }
       </style></head><body>
         <div class="container">
-          <div class="header">AlgoRivals</div>
+          <div class="header">AlgoAI</div>
           <div class="content">
             <h1>Reset Your Password</h1>
             <p>We received a request to reset your password. Please use the following verification code to proceed with resetting your password:</p>
@@ -72,8 +72,8 @@ export const waitListTemplate = (
   url: string,
   brandColor: string = colors.secondaryColor
 ) => ({
-  subject: "Welcome to AlgoRivals",
-  text: `Thank you for joining the AlgoRivals waitlist! Click the following link to learn more: ${url}`,
+  subject: "Welcome to AlgoAI",
+  text: `Thank you for joining the AlgoAI waitlist! Click the following link to learn more: ${url}`,
   html: `
       <html><head><style>
         body, html { margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333333; }
@@ -87,10 +87,10 @@ export const waitListTemplate = (
         .footer { font-size: 14px; color: #999999; text-align: center; padding: 20px; }
       </style></head><body>
         <div class="container">
-          <div class="header">AlgoRivals</div>
+          <div class="header">AlgoAI</div>
           <div class="content">
-            <h1>Welcome to AlgoRivals!</h1>
-            <p>Thank you for joining the AlgoRivals waitlist. We are excited to have you on board. Click the button below to learn more about what we have in store for you.</p>
+            <h1>Welcome to AlgoAI!</h1>
+            <p>Thank you for joining the AlgoAI waitlist. We are excited to have you on board. Click the button below to learn more about what we have in store for you.</p>
             <a href="${url}" class="button">Learn More</a>
             <p>If you have any questions, feel free to reply to this email or contact our support team.</p>
           </div>

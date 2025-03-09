@@ -45,7 +45,7 @@ export class MfaService {
     if (!secretKey) {
       // If the user does not have a secret key, generate one
       const secret = speakeasy.generateSecret({
-        name: config.APPLICATION_NAME || "AlgoRivals",
+        name: config.APPLICATION_NAME || "AlgoAI",
       });
       secretKey = secret.base32;
       // Update the user's preferences with the secret key
@@ -61,7 +61,7 @@ export class MfaService {
     const url = speakeasy.otpauthURL({
       secret: secretKey,
       label: `${user.email}`,
-      issuer: config.APPLICATION_NAME || "AlgoRivals",
+      issuer: config.APPLICATION_NAME || "AlgoAI",
       encoding: "base32",
     });
 
