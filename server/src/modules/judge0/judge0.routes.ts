@@ -1,9 +1,9 @@
-// import { Router } from "express";
-// import { judge0Controller } from "./judge0.module";
+import { Router } from "express";
+import { judge0Controller } from "./judge0.module";
 
-// const judge0Routes = Router();
+const judge0Routes = Router();
 
-// judge0Routes.post("/submit", judge0Controller.submitCode);
-// judge0Routes.get("/result/:token", judge0Controller.getSubmissionResult);
+judge0Routes.post("/submit", judge0Controller.submitCode);
+judge0Routes.get("/result/:token", judge0Controller.getSubmissionResult);
 
-// export default judge0Routes;
+export default judge0Routes;
