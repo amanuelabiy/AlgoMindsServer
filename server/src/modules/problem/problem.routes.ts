@@ -1,8 +1,8 @@
-// import { Router } from "express";
-// import { problemController } from "./problem.module";
+import { Router } from "express";
+import { problemController } from "./problem.module";
 
-// const problemRoutes = Router();
+const problemRoutes = Router();
 
-// problemRoutes.get("/:id", problemController.getProblem);
+problemRoutes.get("/:id", problemController.getProblem);
 
-// export default problemRoutes;
+export default problemRoutes;
