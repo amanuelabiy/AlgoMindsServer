@@ -8,3 +8,5 @@ export const colors = {
   lighterPurpleBlue: "#C3D4FF",
   purpleCustom: "#6C68FC",
 };
+
+export const NUMBER_OF_PROBLEMS_PER_PAGE = 14;
