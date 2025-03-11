@@ -12,4 +12,10 @@ problemRoutes.get(
 
 problemRoutes.get("/getAll", authenticateJWT, problemController.getAllProblems);
 
+problemRoutes.get(
+  "/pagination",
+  authenticateJWT,
+  problemController.getProblemsPagination
+);
+
 export default problemRoutes;

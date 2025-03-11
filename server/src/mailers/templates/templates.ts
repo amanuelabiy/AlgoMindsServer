@@ -1,4 +1,4 @@
-import { colors } from "../../common/utils/constants";
+import { colors } from "../../common/constants/mailers";
 
 export const verifyEmailTemplate = (
   url: string,
