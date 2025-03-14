@@ -1,0 +1,11 @@
+class Solution:    
+    def twoSum(self,arr,target):
+        num_map = {}
+
+        for i, num in enumerate(arr):
+            complement = target - num  # The number we need to find
+            if complement in num_map:
+                return [num_map[complement], i]  # Return indices
+            num_map[num] = i  # Store index of the current number
+
+        return []  # Should never reach here as per problem constraints

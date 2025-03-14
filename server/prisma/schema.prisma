@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,6 +7,134 @@ datasource db {
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
+
+model User {
+  id               String             @id @default(uuid())
+  firstName        String
+  lastName         String
+  isEmailVerified  Boolean            @default(false)
+  email            String             @unique
+  password         String
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  username         String             @unique
+  problems         Problem[]
+  Session          Session[]
+  submissions      submissions[]
+  userPreferences  UserPreferences?
+  user_problems    user_problems[]
+  VerificationCode VerificationCode[]
+
+  @@map("users")
+}
+
+model UserPreferences {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  enable2FA          Boolean  @default(false)
+  emailNotifications Boolean  @default(true)
+  twoFactorSecret    String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  user               User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("user_preferences")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  userAgent String?
+  expiresAt DateTime @default(dbgenerated("(CURRENT_TIMESTAMP + '30 days'::interval)"))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model VerificationCode {
+  id        String          @id @default(uuid())
+  userId    String
+  type      VerficationEnum
+  expiresAt DateTime
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  code      String?
+  user      User            @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("verification_codes")
+}
+
+model Problem {
+  slug          String            @unique
+  title         String
+  content       String
+  createdAt     DateTime          @default(now())
+  createdById   String?
+  solutions     Json
+  tags          String[]
+  updatedAt     DateTime
+  id            Int               @id @default(autoincrement())
+  difficulty    ProblemDifficulty
+  status        Status            @default(NOT_ATTEMPTED)
+  users         User?             @relation(fields: [createdById], references: [id])
+  TestCases      TestCase[]
+  user_problems  user_problems[]
+  submissions    submissions[]
+  @@map("problems")
+}
+
+model TestCase{
+  id              Int @id @default(autoincrement())
+  Problem         Problem @relation(fields: [problemId], references: [id])
+  problemId       Int
+  type            TestcaseEnum
+  input           String
+  output          String 
+
+  @@map("testcases")
+}
+
+model submissions {
+  userId    String
+  code      String
+  createdAt DateTime @default(now())
+  id        String   @id
+  language  String
+  passed    Boolean
+  problemId Int
+  problems  Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  users     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model user_problems {
+  id          String   @id
+  userId      String
+  problemId   Int
+  status      Status   @default(NOT_ATTEMPTED)
+  lastAttempt String?
+  passedTests Int      @default(0)
+  totalTests  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  problems    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  users       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, problemId])
+}
+
+model waitlist {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+
 
 enum VerficationEnum {
   EMAIL_VERIFICATION
@@ -31,128 +153,15 @@ enum Status {
   SOLVED
 }
 
-model User {
-  id               String             @id @default(uuid())
-  firstName        String
-  lastName         String
-  username         String             @unique
-  isEmailVerified  Boolean            @default(false)
-  email            String             @unique
-  password         String
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  userPreferences  UserPreferences?
-  Session          Session[]
-  VerificationCode VerificationCode[]
-  submissions      Submission[]  // Tracks all submissions made by user
-  userProblems     UserProblem[] // Tracks problem attempts and status for this user
-
-  problemsCreated  Problem[] @relation("UserCreatedProblems")
-
-  @@map("users")
-}
-
-model UserProblem {
-  id          String   @id @default(uuid())
-  userId      String   
-  problemId   Int      
-  status      Status   @default(NOT_ATTEMPTED) // User's progress on this problem
-  lastAttempt String?  // Stores the latest submission code by the user
-  passedTests Int      @default(0) // Number of test cases passed
-  totalTests  Int      @default(0) // Total test cases for the problem
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  problem     Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, problemId])
-  @@map("user_problems")
-}
-
-model UserPreferences {
-  id                 String   @id @default(uuid())
-  user               User     @relation(fields: [userId], references: [id])
-  userId             String   @unique
-  enable2FA          Boolean  @default(false)
-  emailNotifications Boolean  @default(true)
-  twoFactorSecret    String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-
-  @@index([userId])
-  @@map("user_preferences")
-}
-
-model Session {
-  id        String   @id @default(uuid())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
-  userAgent String?
-  expiresAt DateTime @default(dbgenerated("CURRENT_TIMESTAMP + INTERVAL '30 days'"))
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId]) // Create an index for efficient lookups by userId
-  @@map("sessions") // Maps this model to the "sessions" table in the database
-}
-
-model VerificationCode {
-  id        String          @id @default(uuid())
-  user      User            @relation(fields: [userId], references: [id])
-  userId    String
-  type      VerficationEnum
-  code      String?
-  expiresAt DateTime
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
-
-  @@index([userId])
-  @@map("verification_codes")
-}
-
-model Problem {
-  id          Int      @id @default(autoincrement())
-  slug        String   @unique
-  title       String
-  difficulty  ProblemDifficulty
-  status      Status   @default(NOT_ATTEMPTED) // Status of the problem
-  content     String
-  solutions   Json
-  tags        String[]
-  testCases   Json
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  createdById String? // Nullable in case it's a system-generated problem
-  createdBy   User?   @relation("UserCreatedProblems", fields: [createdById], references: [id], onDelete: SetNull) // Updated relation
-
-  userProblems UserProblem[] // Links to users who attempted this problem
-  submissions  Submission[]  // All submissions related to this problem
-
-  @@map("problems")
-}
-
-model Submission {
-  id         String   @id @default(uuid())
-  userId     String
-  problemId  Int
-  code       String   // User's submitted code
-  language   String   // Language used for submission
-  passed     Boolean  // Whether the submission passed all test cases
-  createdAt  DateTime @default(now())
-
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
-
-  @@map("submissions")
-}
-
-model Waitlist {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("waitlist")
+enum TestcaseEnum {
+  ARRAY_AND_TARGET
+  ARRAY_ONLY
+  SINGLE_INTEGER
+  DOUBLE_INTEGER
+  SINGLE_STRING
+  DOUBLE_STRING
+  ARRAY_AND_STRING
+  TWO_ARRAYS
+  LINKED_LIST
+  TREE
 }

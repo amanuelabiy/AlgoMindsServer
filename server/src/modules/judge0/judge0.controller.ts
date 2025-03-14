@@ -3,7 +3,6 @@ import { Judge0Service } from "./judge0.service";
 import { asyncHandler } from "../../middlewares/asyncHandler"; // Optional, for error handling
 import { HTTPSTATUS } from "../../config/http.config";
 
-const judge0Service = new Judge0Service();
 
 export class Judge0Controller {
   private judge0Service: Judge0Service;
@@ -16,11 +15,11 @@ export class Judge0Controller {
 
     if (!sourceCode || !languageId) {
       return res
-        .status(HTTPSTATUS.BAD_REQUEST)
+        .status(400)
         .json({ error: "sourceCode and languageId are required" });
     }
 
-    const token = await this.judge0Service.submitCode(
+    const token = await this.judge0Service.prepareCode(
       sourceCode,
       languageId,
       stdin
@@ -32,12 +31,10 @@ export class Judge0Controller {
     const { token } = req.params;
 
     if (!token) {
-      return res
-        .status(HTTPSTATUS.BAD_REQUEST)
-        .json({ error: "Token is required" });
+      return res.status(400).json({ error: "Token is required" });
     }
 
     const result = await this.judge0Service.getSubmissionResult(token);
-    res.status(HTTPSTATUS.OK).json(result);
+    res.status(200).json(result);
   });
 }

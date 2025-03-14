@@ -5,6 +5,7 @@ export class WaitListRepository {
     return prismaClient.waitlist.create({
       data: {
         email,
+        updatedAt: new Date()
       },
     });
   }
