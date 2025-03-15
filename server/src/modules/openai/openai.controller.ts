@@ -10,15 +10,11 @@ export class OpenAIController {
     this.openAIService = openAIService;
   }
 
-  public CreateTestCases = asyncHandler(
-    async (req: Request, res: Response): Promise<any> => {
-      // console.log("Received request body:", req.body); // Debugging
-      // const { problem_id, language } = req.body;
-      // const response = await this.openAIService.CreateTestCases(
-      //   problem_id,
-      //   language
-      // );
-      // return res.status(HTTPSTATUS.CREATED).json({ message: response });
+  public getResponseForLandingPage = asyncHandler(
+    async (req: Request, res: Response) => {
+      res.status(HTTPSTATUS.OK).json({
+        message: "Welcome to OpenAI",
+      });
     }
   );
 }

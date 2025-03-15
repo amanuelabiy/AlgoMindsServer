@@ -1,12 +1,6 @@
-import { OpenAI } from "openai";
-import { getEnv } from "../../common/utils/get-env";
-import { config } from "../../config/app.config";
-import { ProblemRepository } from "../problem/problem.repository";
 import { ProblemService } from "../problem/problem.service";
 // Initialize with your API key
-const openai = new OpenAI({
-  apiKey: config.OPEN_API_KEY,
-});
+
 export class OpenAIService {
   constructor(private problemService: ProblemService) {}
   // public async CreateTestCases(
