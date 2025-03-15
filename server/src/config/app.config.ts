@@ -22,6 +22,10 @@ const appConfig = () => ({
     ? JSON.parse(getEnv("JUDGE0_HEADERS"))
     : "",
   OPEN_API_KEY: getEnv("OPEN_API_KEY"),
+  OPEN_API_LANDING_PAGE_CHAT_PROMPT: getEnv(
+    "OPEN_API_LANDING_PAGE_CHAT_PROMPT"
+  ),
+  OPEN_API_MODEL: getEnv("OPEN_API_MODEL"),
 });
 
 export const JWT_EXPIRES_IN = "15m";

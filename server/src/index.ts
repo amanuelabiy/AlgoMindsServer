@@ -49,10 +49,9 @@ app.use(`${BASE_PATH}/problems`, problemRoutes);
 app.use(`${BASE_PATH}/submission`, submissionRoutes);
 
 // OpenAI API test route
-app.use(`${BASE_PATH}/testai`, openAIRoutes);
+app.use(`${BASE_PATH}/openai`, openAIRoutes);
 // // Judge0 API test route
 // app.use(`${BASE_PATH}/judge0`, judge0Routes);
-app.use(`${BASE_PATH}/testai`, openAIRoutes);
 // Judge0 API test route
 app.use(`${BASE_PATH}/judge0`, judge0Routes);
 
