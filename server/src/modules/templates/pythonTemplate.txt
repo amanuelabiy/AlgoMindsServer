@@ -83,31 +83,30 @@ def linkedlist_to_list(head):
         head = head.next
     return result
 
-class InputProcesser:
-     def process_input(self, data):
-        d = data['input']
-        if data['type'] == "array_and_target":
-            return (d['arr'], d['target'])
-        elif data['type'] == "array_only":
-            return (d['arr'],)
-        elif data['type'] == "single_integer":
-            return (d['num'],)
-        elif data['type'] == "two_integers":
-            return (d['num1'], d['num2'])
-        elif data['type'] == "single_string":
-            return (d['s'],)
-        elif data['type'] == "two_strings":
-            return (d['s1'], d['s2'])
-        elif data['type'] == "array_and_string":
-            return (d['arr'], d['s'])
-        elif data['type'] == "two_arrays":
-            return (d['arr1'], d['arr2'])
-        elif data['type'] == "linked_list":
-            head = list_to_linkedlist(d['list'])
+def process_input(data):
+        d = data["input"]
+        if data["type"] == "ARRAY_AND_TARGET":
+            return (d["arr"], d["target"])
+        elif data["type"] == "ARRAY_ONLY":
+            return (d["arr"],)
+        elif data["type"] == "SINGLE_INTEGER":
+            return (d["num"],)
+        elif data["type"] == "DOUBLE_INTEGER":
+            return (d["num1"], d["num2"])
+        elif data["type"] == "SINGLE_STRING":
+            return (d["s"],)
+        elif data["type"] == "DOUBLE_STRING":
+            return (d["s1"], d["s2"])
+        elif data["type"] == "ARRAY_AND_STRING":
+            return (d["arr"], d["s"])
+        elif data["type"] == "TWO_ARRAYS":
+            return (d["arr1"], d["arr2"])
+        elif data["type"] == "LINKED_LIST":
+            head = list_to_linkedlist(d["list"])
             return (head,)
-        elif data['type'] == "tree":
-            root = list_to_tree(d['list'])
-            return root
+        elif data["type"] == "TREE":
+            root = list_to_tree(d["list"])
+            return (root,)  # Fix: Ensure it returns a tuple
         else:
             return "unknown_input_type"
 
@@ -126,9 +125,9 @@ def main():
 
     if first_method_name:
         obj = Solution()  # Create an instance
-        inp = InputProcesser()
         method = getattr(obj, first_method_name)  # Retrieve method
-        result = method(*inp.process_input(testcase))  # Call the method
+        result = method(*process_input(testcase))  # Call the method
+        print(result)
         if result == testcase["output"]:
             print("Yay")
         else:

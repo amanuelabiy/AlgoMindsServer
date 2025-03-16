@@ -82,19 +82,20 @@ model Problem {
   difficulty    ProblemDifficulty
   status        Status            @default(NOT_ATTEMPTED)
   users         User?             @relation(fields: [createdById], references: [id])
-  TestCases      TestCase[]
-  user_problems  user_problems[]
-  submissions    submissions[]
+  submissions   submissions[]
+  TestCases     TestCase[]
+  user_problems user_problems[]
+
   @@map("problems")
 }
 
-model TestCase{
-  id              Int @id @default(autoincrement())
-  Problem         Problem @relation(fields: [problemId], references: [id])
-  problemId       Int
-  type            TestcaseEnum
-  input           String
-  output          String 
+model TestCase {
+  id        Int          @id @default(autoincrement())
+  problemId Int
+  type      TestcaseEnum
+  input     Json
+  output    String
+  Problem   Problem      @relation(fields: [problemId], references: [id])
 
   @@map("testcases")
 }
@@ -133,8 +134,6 @@ model waitlist {
   createdAt DateTime @default(now())
   updatedAt DateTime
 }
-
-
 
 enum VerficationEnum {
   EMAIL_VERIFICATION

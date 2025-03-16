@@ -4,78 +4,83 @@ import * as path from "path";
 import { JsonObject } from "@prisma/client/runtime/library";
 import { TestCaseRepository } from "../testcase/testcase.repository";
 import { TestCaseService } from "../testcase/testcase.service";
-import { TestcaseEnum } from "@prisma/client";
+import { TestCase, TestcaseEnum } from "@prisma/client";
 
 export class Judge0Service {
+
   private testcaseService: TestCaseService;
 
   constructor(testcaseService: TestCaseService) {
     this.testcaseService = testcaseService;
   }
 
-  async submitSingleCode(
+  async submitSampleCode(
     sourceCode: string,
     languageId: number,
     problemId: number
   ) {
     const testcase = await this.testcaseService.getTestCase(problemId);
-   
-      const formattedInput = {
+      const formattedInput = JSON.stringify({
         type: testcase["type"],
         input: testcase["input"],
         output: testcase["output"]
-      };
+      });
+      console.log(formattedInput)
+    
+      const response = await fetch(
+        `${config.JUDGE0_API_BASE_URL}/submissions?base64_encoded=false&wait=true`,
+        {
+          method: "POST",
+          headers: config.JUDGE0_HEADERS,
+          body: JSON.stringify({
+            source_code: sourceCode,
+            language_id: languageId,
+            stdin: formattedInput,
+          }),
+        }
+      );
 
-      // const response = await fetch(
-      //   `${config.JUDGE0_API_BASE_URL}/submissions?base64_encoded=false&wait=true`,
-      //   {
-      //     method: "POST",
-      //     headers: config.JUDGE0_HEADERS,
-      //     body: JSON.stringify({
-      //       source_code: sourceCode,
-      //       language_id: languageId,
-      //       stdin: stdin,
-      //     }),
-      //   }
-      // );
-
-      // const result = await response.json();
-      // console.log(result);
-      // return result.token;
+      const result = await response.json();
+      console.log(result);
+      return result.token;
   }
 
-  // // async submitBatchedCode(sourceCode: string, languageId: number, test_case: JsonObject) {
-  // //   const body = {
-  // //     submissions: [
-  // //       {
-  // //       source_code: sourceCode,
-  // //       language_id: languageId,
-  // //       stdin: stdin//Testcase goes here
-  // //       expected_output: "Yay\n"
-  // //       },
-  // //       {
+  async submitBatchedCode(sourceCode: string, languageId: number, problemId: number) {
 
-  // //       }
+    const testcases: TestCase[] = [await this.testcaseService.getTestCase(problemId)];
 
-  // //     ]
-  // //   }
-  // //   const response = await fetch(
-  // //     `${config.JUDGE0_API_BASE_URL}/submissions/batch?base64_encoded=false&wait=true`,
-  // //     {
-  // //       method: "POST",
-  // //       headers: config.JUDGE0_HEADERS,
-  // //       body: JSON.stringify({
-  // //         source_code: sourceCode,
-  // //         language_id: languageId,
-  // //         stdin: stdin,
-  // //       }),
-  // //     }
-  // //   );
 
-  // //   const result = await response.json();
-  // //   console.log(result);
-  // //   return result.token;
-  // }
+    const body = {
+      submissions: [{}]
+    }
+    testcases.forEach(testcase => {
+      const formattedInput = JSON.stringify({
+        type: testcase["type"],
+        input: testcase["input"],
+        output: testcase["output"]
+      });
+      const submissionBody = {
+        source_code: sourceCode,
+        language_id: languageId,
+        stdin: formattedInput
+      }
+      body["submissions"].push(submissionBody);
+    });
+    console.log(body)
+    
+    // const response = await fetch(
+    //   `${config.JUDGE0_API_BASE_URL}/submissions/batch?base64_encoded=false&wait=true`,
+    //   {
+    //     method: "POST",
+    //     headers: config.JUDGE0_HEADERS,
+    //     body: JSON.stringify(body),
+    //   }
+    // );
+
+    // const result = await response.json();
+    // console.log(result);
+    // return result.token;
+  }
 
   async getSubmissionResult(token: string) {
     try {
@@ -159,7 +164,7 @@ export class Judge0Service {
         templatePath,
         userCodeExample
       );
-      const token = await this.submitSingleCode(
+      const token = await this.submitSampleCode(
         modifiedCode,
         language_id,
         problemId
