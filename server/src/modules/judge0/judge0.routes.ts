@@ -6,6 +6,5 @@ const judge0Routes = Router();
 
 judge0Routes.post("/run", judge0Controller.runSampleCode);
 judge0Routes.post("/submit", judge0Controller.submitCode);
-judge0Routes.get("/result/:token", judge0Controller.getSubmissionResult);
 
 export default judge0Routes;

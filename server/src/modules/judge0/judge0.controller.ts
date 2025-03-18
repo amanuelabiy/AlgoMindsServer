@@ -42,15 +42,4 @@ export class Judge0Controller {
     );
     res.status(HTTPSTATUS.CREATED).json({ token });
   });
-
-  getSubmissionResult = asyncHandler(async (req: Request, res: Response) => {
-    const { token } = req.params;
-
-    if (!token) {
-      return res.status(400).json({ error: "Token is required" });
-    }
-
-    const result = await this.judge0Service.getSubmissionResult(token);
-    res.status(200).json(result);
-  });
 }

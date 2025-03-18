@@ -1,0 +1,196 @@
+import java.io.*;
+import java.lang.reflect.*;
+import java.util.*;
+
+// Data structure definitions
+class ListNode {
+    int val;
+    ListNode next;
+    ListNode(int x) { 
+        val = x; 
+    }
+}
+
+class TreeNode {
+    int val;
+    TreeNode left;
+    TreeNode right;
+    TreeNode(int x) { 
+        val = x; 
+    }
+}
+
+public class Main {
+
+    // Utility: Convert a List of numbers into a linked list.
+    public static ListNode listToLinkedList(List<Integer> arr) {
+        if (arr == null || arr.isEmpty()) return null;
+        ListNode head = new ListNode(arr.get(0));
+        ListNode current = head;
+        for (int i = 1; i < arr.size(); i++) {
+            current.next = new ListNode(arr.get(i));
+            current = current.next;
+        }
+        return head;
+    }
+
+    // Utility: Convert a List of numbers into a binary tree (level order).
+    public static TreeNode listToTree(List<Integer> arr) {
+        if (arr == null || arr.isEmpty()) return null;
+        TreeNode root = new TreeNode(arr.get(0));
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+        int index = 1;
+        while (!queue.isEmpty() && index < arr.size()) {
+            TreeNode node = queue.poll();
+            Integer leftVal = arr.get(index++);
+            if (leftVal != null) {
+                node.left = new TreeNode(leftVal);
+                queue.offer(node.left);
+            }
+            if (index < arr.size()) {
+                Integer rightVal = arr.get(index++);
+                if (rightVal != null) {
+                    node.right = new TreeNode(rightVal);
+                    queue.offer(node.right);
+                }
+            }
+        }
+        return root;
+    }
+
+    // (Optional) Convert a tree back into a list (level order).
+    public static List<Integer> treeToList(TreeNode root) {
+        List<Integer> result = new ArrayList<>();
+        if (root == null) return result;
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+            TreeNode node = queue.poll();
+            if (node != null) {
+                result.add(node.val);
+                queue.offer(node.left);
+                queue.offer(node.right);
+            } else {
+                result.add(null);
+            }
+        }
+        // Remove trailing nulls.
+        int i = result.size() - 1;
+        while (i >= 0 && result.get(i) == null) {
+            result.remove(i);
+            i--;
+        }
+        return result;
+    }
+
+    /**
+     * Processes the input JSON and returns an Object array of parameters
+     * to be passed to the user's solution method.
+     */
+    public static Object[] processInput(JsonObject testCase) {
+        JsonObject d = testCase.getAsJsonObject("input");
+        String type = testCase.get("type").getAsString();
+        Gson gson = new Gson();
+
+        switch (type) {
+            case "ARRAY_AND_TARGET":
+                // arr is expected as a JSON array of integers
+                List<Integer> arrAT = gson.fromJson(d.get("arr"), List.class);
+                int target = d.get("target").getAsInt();
+                return new Object[]{ arrAT, target };
+            case "ARRAY_ONLY":
+                List<Integer> arrOnly = gson.fromJson(d.get("arr"), List.class);
+                return new Object[]{ arrOnly };
+            case "SINGLE_INTEGER":
+                int num = d.get("num").getAsInt();
+                return new Object[]{ num };
+            case "DOUBLE_INTEGER":
+                int num1 = d.get("num1").getAsInt();
+                int num2 = d.get("num2").getAsInt();
+                return new Object[]{ num1, num2 };
+            case "SINGLE_STRING":
+                String s = d.get("s").getAsString();
+                return new Object[]{ s };
+            case "DOUBLE_STRING":
+                String s1 = d.get("s1").getAsString();
+                String s2 = d.get("s2").getAsString();
+                return new Object[]{ s1, s2 };
+            case "ARRAY_AND_STRING":
+                List<Integer> arrAS = gson.fromJson(d.get("arr"), List.class);
+                String sVal = d.get("s").getAsString();
+                return new Object[]{ arrAS, sVal };
+            case "TWO_ARRAYS":
+                List<Integer> arr1 = gson.fromJson(d.get("arr1"), List.class);
+                List<Integer> arr2 = gson.fromJson(d.get("arr2"), List.class);
+                return new Object[]{ arr1, arr2 };
+            case "LINKED_LIST":
+                // Assuming the JSON "list" is an array of integers
+                List<Integer> listData = gson.fromJson(d.get("list"), List.class);
+                ListNode head = listToLinkedList(listData);
+                return new Object[]{ head };
+            case "TREE":
+                List<Integer> treeData = gson.fromJson(d.get("list"), List.class);
+                TreeNode root = listToTree(treeData);
+                return new Object[]{ root };
+            default:
+                throw new IllegalArgumentException("Unknown input type: " + type);
+        }
+    }
+
+    // Code Snippet START ====================
+
+    
+    
+    // Code Snippet END ====================
+
+    public static void main(String[] args) {
+        try {
+            // Read full input from STDIN
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+            String inputJson = sb.toString();
+
+            // Parse the JSON test case
+            Gson gson = new Gson();
+            JsonObject testCase = gson.fromJson(inputJson, JsonObject.class);
+
+            // Use reflection to get the first method in the Solution class.
+            Method[] methods = Solution.class.getDeclaredMethods();
+            if (methods.length == 0) {
+                throw new Exception("No method found in the Solution class.");
+            }
+            Method method = methods[0];
+
+            // Create an instance of the user-defined Solution
+            Object sol = Solution.class.getDeclaredConstructor().newInstance();
+
+            // Process input based on type
+            Object[] params = processInput(testCase);
+
+            // Invoke the method with the processed parameters.
+            Object result = method.invoke(sol, params);
+
+            // Print the result (you may need to adjust conversion for complex types).
+            System.out.println(result);
+
+            // Compare the output with the expected output.
+            // Here we compare the JSON string representation for simplicity.
+            JsonElement expected = testCase.get("output");
+            JsonElement actual = gson.toJsonTree(result);
+            if (expected.equals(actual)) {
+                System.out.println("Yay");
+            } else {
+                System.out.println("Error");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error");
+        }
+    }
+}
+
