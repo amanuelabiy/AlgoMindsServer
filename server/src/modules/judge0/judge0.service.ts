@@ -1,96 +1,144 @@
 import { config } from "../../config/app.config";
 import * as fs from "fs";
 import * as path from "path";
-import { JsonObject } from "@prisma/client/runtime/library";
-import { TestCaseRepository } from "../testcase/testcase.repository";
 import { TestCaseService } from "../testcase/testcase.service";
 import { TestCase, TestcaseEnum } from "@prisma/client";
+import { SubmissionService } from "../submission/submission.service";
 
 export class Judge0Service {
-
   private testcaseService: TestCaseService;
+  private submissionService: SubmissionService;
 
-  constructor(testcaseService: TestCaseService) {
+  constructor(
+    testcaseService: TestCaseService,
+    submissionService: SubmissionService
+  ) {
     this.testcaseService = testcaseService;
+    this.submissionService = submissionService;
   }
 
-  async submitSampleCode(
+  async runSampleCode(
     sourceCode: string,
     languageId: number,
     problemId: number
   ) {
-    const testcase = await this.testcaseService.getTestCase(problemId);
+    const modifiedCode = (await this.prepareCode(languageId)) || "";
+
+    const testcases: TestCase[] = await this.testcaseService.getSampleTestCases(
+      problemId
+    );
+
+    const body: {
+      submissions: {
+        source_code: string;
+        language_id: number;
+        stdin: string;
+      }[];
+    } = {
+      submissions: [],
+    };
+    testcases.forEach((testcase) => {
       const formattedInput = JSON.stringify({
         type: testcase["type"],
         input: testcase["input"],
-        output: testcase["output"]
-      });
-      console.log(formattedInput)
-    
-      const response = await fetch(
-        `${config.JUDGE0_API_BASE_URL}/submissions?base64_encoded=false&wait=true`,
-        {
-          method: "POST",
-          headers: config.JUDGE0_HEADERS,
-          body: JSON.stringify({
-            source_code: sourceCode,
-            language_id: languageId,
-            stdin: formattedInput,
-          }),
-        }
-      );
-
-      const result = await response.json();
-      console.log(result);
-      return result.token;
-  }
-
-  async submitBatchedCode(sourceCode: string, languageId: number, problemId: number) {
-
-    const testcases: TestCase[] = [await this.testcaseService.getTestCase(problemId)];
-
-
-    const body = {
-      submissions: [{}]
-    }
-    testcases.forEach(testcase => {
-      const formattedInput = JSON.stringify({
-        type: testcase["type"],
-        input: testcase["input"],
-        output: testcase["output"]
+        output: testcase["output"],
       });
       const submissionBody = {
-        source_code: sourceCode,
+        source_code: modifiedCode,
         language_id: languageId,
-        stdin: formattedInput
-      }
+        stdin: formattedInput,
+      };
       body["submissions"].push(submissionBody);
     });
-    console.log(body)
-    
-    // const response = await fetch(
-    //   `${config.JUDGE0_API_BASE_URL}/submissions/batch?base64_encoded=false&wait=true`,
-    //   {
-    //     method: "POST",
-    //     headers: config.JUDGE0_HEADERS,
-    //     body: JSON.stringify(body),
-    //   }
-    // );
+    console.log(body);
+    const response = await fetch(
+      `${config.JUDGE0_API_BASE_URL}/submissions/batch?base64_encoded=false&wait=true`,
+      {
+        method: "POST",
+        headers: config.JUDGE0_HEADERS,
+        body: JSON.stringify(body),
+      }
+    );
 
-    // const result = await response.json();
-    // console.log(result);
-    // return result.token;
+    const result = await response.json();
+    let tokens = "";
+    result.forEach((item: { token: string }) => {
+      tokens = tokens.concat(item.token, ",");
+    });
+    tokens = tokens.slice(0, -1);
+
+    return await this.getSubmissionResult(tokens);
   }
 
-  async getSubmissionResult(token: string) {
+  async submitBatchedCode(
+    sourceCode: string,
+    languageId: number,
+    problemId: number
+  ) {
+    const modifiedCode = (await this.prepareCode(languageId)) || "";
+
+    const testcases: TestCase[] = await this.testcaseService.getTestAllCases(
+      problemId
+    );
+
+    const body: {
+      submissions: {
+        source_code: string;
+        language_id: number;
+        stdin: string;
+      }[];
+    } = {
+      submissions: [],
+    };
+    testcases.forEach((testcase) => {
+      const formattedInput = JSON.stringify({
+        type: testcase["type"],
+        input: testcase["input"],
+        output: testcase["output"],
+      });
+      const submissionBody = {
+        source_code: modifiedCode,
+        language_id: languageId,
+        stdin: formattedInput,
+      };
+      body["submissions"].push(submissionBody);
+    });
+
+    const response = await fetch(
+      `${config.JUDGE0_API_BASE_URL}/submissions/batch?base64_encoded=false&wait=true`,
+      {
+        method: "POST",
+        headers: config.JUDGE0_HEADERS,
+        body: JSON.stringify(body),
+      }
+    );
+
+    const result = await response.json();
+
+    let tokens = "";
+    result.forEach((item: { token: string }) => {
+      tokens = tokens.concat(item.token, ",");
+      this.checkSubmissionStatus(item.token);
+
+    });
+    tokens = tokens.slice(0, -1);
+    console.log(tokens);
+
+  }
+
+  async getSubmissionResult(tokens: string) {
     try {
       const response = await fetch(
-        `${config.JUDGE0_API_BASE_URL}/submissions/${token}`,
+        `${config.JUDGE0_API_BASE_URL}/submissions/batch?tokens=${tokens}`,
         {
+          method: "GET",
           headers: config.JUDGE0_HEADERS,
         }
       );
-      return response;
+      const result = await response.json();
+
+      console.log("Judge0 Response:", JSON.stringify(result, null, 2));
+      return result.body;
     } catch (error) {
       throw new Error(`Error fetching submission result: ${error}`);
     }
@@ -141,7 +189,7 @@ export class Judge0Service {
       throw new Error(`Error generating Python code: ${error}`);
     }
   }
-  async prepareCode(userCode: string, language_id: number, problemId: number) {
+  async prepareCode(language_id: number) {
     let templatePath: string; // path to the correct language template
 
     // Need to update this to dynamically take user code. User code must be formatted properly
@@ -164,14 +212,29 @@ export class Judge0Service {
         templatePath,
         userCodeExample
       );
-      const token = await this.submitSampleCode(
-        modifiedCode,
-        language_id,
-        problemId
-      ); // Python 3 (ID: 71)
-      return token;
-    } else {
-      throw new Error(`Language not supported!`);
+
+      return modifiedCode;
     }
+  }
+
+  async checkSubmissionStatus(tokens: string) {
+    let status = null;
+    let result = null;
+
+    do {
+      const response = await fetch(
+        `${config.JUDGE0_API_BASE_URL}/submissions/batch?${tokens}`
+      );
+      result = await response.json();
+      console.log("Checking status:", result.status);
+
+      status = result.status.id;
+      if (status === 1 || status === 2) {
+        // In queue or processing
+        await new Promise((res) => setTimeout(res, 2000)); // Wait 2 seconds before retrying
+      }
+    } while (status === 1 || status === 2);
+
+    return result; // Return the final result
   }
 }

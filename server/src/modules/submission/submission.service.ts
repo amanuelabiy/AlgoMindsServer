@@ -1,4 +1,4 @@
-import { Submission } from "@prisma/client";
+import { submissions } from "@prisma/client";
 import { SubmissionRepository } from "./submission.repository";
 
 export class SubmissionService {
