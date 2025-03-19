@@ -6,7 +6,13 @@ import { TestCase, TestcaseEnum } from "@prisma/client";
 import { SubmissionService } from "../submission/submission.service";
 
 export class Judge0Service {
+  /**
+   * A testcase service instance to grab testcases from the database.
+   */
   private testcaseService: TestCaseService;
+  /**
+   * A submission service instance to submit user code to the database.
+   */
   private submissionService: SubmissionService;
 
   constructor(
@@ -17,6 +23,15 @@ export class Judge0Service {
     this.submissionService = submissionService;
   }
 
+  /**
+   * Sends a POST Batched Submissions request to Judge0 API. This only takes 2 test cases from the database. Uses prepareCode() to modify the merge template code + users code with
+   * the appropriate langauge. Uses formatAPICall to create the proper body to send to Judge0. Concatenates all tokens, then sends to checkSubmissionStatus to continiously poll Judge-
+   * until submission is ready to be presented.
+   * @param sourceCode The code the user writes.
+   * @param languageId The langauge ID of the user written code.
+   * @param problemId The problem ID of the problem being solved
+   * @returns A Response object that contains stdout, time, stderr, token, compile_output, and status of each submission
+   */
   async runSampleCode(
     sourceCode: string,
     languageId: number,
@@ -28,28 +43,8 @@ export class Judge0Service {
       problemId
     );
 
-    const body: {
-      submissions: {
-        source_code: string;
-        language_id: number;
-        stdin: string;
-      }[];
-    } = {
-      submissions: [],
-    };
-    testcases.forEach((testcase) => {
-      const formattedInput = JSON.stringify({
-        type: testcase["type"],
-        input: testcase["input"],
-        output: testcase["output"],
-      });
-      const submissionBody = {
-        source_code: modifiedCode,
-        language_id: languageId,
-        stdin: formattedInput,
-      };
-      body["submissions"].push(submissionBody);
-    });
+    const body = await this.formatAPICall(modifiedCode, languageId, testcases);
+    console.log(body)
     const response = await fetch(
       `${config.JUDGE0_API_BASE_URL}/submissions/batch?base64_encoded=false&wait=true`,
       {
@@ -60,7 +55,10 @@ export class Judge0Service {
     );
 
     const result = await response.json();
-    let tokens = "";
+    /**
+     * @type {string}
+     */
+    let tokens: string = "";
     result.forEach((item: { token: string }) => {
       tokens = tokens.concat(item.token, ",");
     });
@@ -69,6 +67,15 @@ export class Judge0Service {
     return await this.checkSubmissionStatus(tokens);
   }
 
+  /**
+   * Sends a POST Batched Submissions request to Judge0 API. This takes all test cases from the database. Uses prepareCode() to modify the merge template code + users code with
+   * the appropriate langauge. Uses formatAPICall to create the proper body to send to Judge0. Concatenates all tokens, then sends to checkSubmissionStatus to continiously poll Judge-
+   * until submission is ready to be presented.
+   * @param sourceCode The code the user writes.
+   * @param languageId The langauge ID of the user written code.
+   * @param problemId The problem ID of the problem being solved
+   * @returns A Response object that contains stdout, time, stderr, token, compile_output, and status of each submission
+   */
   async submitBatchedCode(
     sourceCode: string,
     languageId: number,
@@ -80,29 +87,7 @@ export class Judge0Service {
       problemId
     );
 
-    const body: {
-      submissions: {
-        source_code: string;
-        language_id: number;
-        stdin: string;
-      }[];
-    } = {
-      submissions: [],
-    };
-    testcases.forEach((testcase) => {
-      const formattedInput = JSON.stringify({
-        type: testcase["type"],
-        input: testcase["input"],
-        output: testcase["output"],
-      });
-      const submissionBody = {
-        source_code: modifiedCode,
-        language_id: languageId,
-        stdin: formattedInput,
-      };
-      body["submissions"].push(submissionBody);
-    });
-
+    const body = await this.formatAPICall(modifiedCode, languageId, testcases);
     const response = await fetch(
       `${config.JUDGE0_API_BASE_URL}/submissions/batch?base64_encoded=false&wait=true`,
       {
@@ -113,15 +98,25 @@ export class Judge0Service {
     );
 
     const result = await response.json();
-
-    let tokens = "";
+    console.log(result)
+    /**
+     * @type {string}
+     */
+    let tokens: string = "";
     result.forEach((item: { token: string }) => {
       tokens = tokens.concat(item.token, ",");
     });
     tokens = tokens.slice(0, -1);
-    this.checkSubmissionStatus(tokens);
+    return await this.checkSubmissionStatus(tokens);
   }
 
+  /**
+   * Encodes all information sent to Judge0 to in Base64 for security.
+   * @param templatePath Path to the appropriate language template.
+   * @param languageId Appropriate language ID.
+   * @param userCode User-written code.
+   * @returns Base64 encoded information.
+   */
   // // Not in use for testing
   // async convertFileToBase64(filePath: string) {
   //   try {
@@ -138,7 +133,14 @@ export class Judge0Service {
   //   }
   // }
 
-  async generatePythonCodeWithUserCode(
+  /**
+   *
+   * @param templatePath
+   * @param languageId
+   * @param userCode
+   * @returns
+   */
+  async generateModifiedCode(
     templatePath: string,
     languageId: number,
     userCode: string
@@ -146,16 +148,25 @@ export class Judge0Service {
     try {
       const pythonTemplate = fs.readFileSync(templatePath, "utf-8");
       // Locate the insertion markers
-      let startMarker: string = ""
-      let endMarker: string = ""
-      switch (languageId){
-        case(71):
-        startMarker = "# Code Snippet START ====================";
-        endMarker = "# Code Snippet END ====================";
-        case(62):
-        startMarker = "// Code Snippet END ===================="
-        endMarker = "// Code Snippet END ===================="
+      /**
+       * @type {string}
+       */
+      let startMarker: string = "";
+      /**
+       * @type {string}
+       */
+      let endMarker: string = "";
+      switch (languageId) {
+        case 71:
+          startMarker = "# Code Snippet START ====================";
+          endMarker = "# Code Snippet END ====================";
+          break;
+        case 62:
+          startMarker = "// Code Snippet END ====================";
+          endMarker = "// Code Snippet END ====================";
+          break;
       }
+
       const startIndex = pythonTemplate.indexOf(startMarker);
       const endIndex = pythonTemplate.indexOf(endMarker);
 
@@ -173,7 +184,7 @@ export class Judge0Service {
 
       return `${modifiedPythonCode}`;
     } catch (error) {
-      throw new Error(`Error generating Python code: ${error}`);
+      throw new Error(`Error generating ${languageId} code: ${error}`);
     }
   }
   async prepareCode(language_id: number) {
@@ -182,7 +193,6 @@ export class Judge0Service {
     let userCode: string = "";
     // Need to update this to dynamically take user code. User code must be formatted properly
     // before sending to Judge0
-  
 
     // Language ID's:
 
@@ -198,29 +208,36 @@ export class Judge0Service {
           path.join(__dirname, "../templates/sampleUserCode.txt"),
           "utf-8"
         );
-        modifiedCode = await this.generatePythonCodeWithUserCode(
+        modifiedCode = await this.generateModifiedCode(
           templatePath,
           language_id,
           userCode
         );
+        break;
       case 62:
         templatePath = path.join(__dirname, "../templates/javaTemplate.txt"); // Template Java file
         userCode = fs.readFileSync(
           path.join(__dirname, "../templates/sampleJavaCode.txt"),
           "utf-8"
         );
-        modifiedCode = await this.generatePythonCodeWithUserCode(
+        modifiedCode = await this.generateModifiedCode(
           templatePath,
           language_id,
           userCode
         );
+        break;
     }
     return modifiedCode;
-
   }
 
   async checkSubmissionStatus(tokens: string) {
+    /**
+     * @type {Array}
+     */
     let results = [];
+    /**
+     * @type {boolean}
+     */
     let allDone = false;
 
     do {
@@ -243,7 +260,37 @@ export class Judge0Service {
         await new Promise((res) => setTimeout(res, 2000));
       }
     } while (!allDone);
-    console.log(results)
     return results; // Return the final result
+  }
+
+  async formatAPICall(
+    modifiedCode: string,
+    languageId: number,
+    testcases: TestCase[]
+  ) {
+    const body: {
+      submissions: {
+        source_code: string;
+        language_id: number;
+        stdin: string;
+      }[];
+    } = {
+      submissions: [],
+    };
+    testcases.forEach((testcase) => {
+      const formattedInput = JSON.stringify({
+        type: testcase["type"],
+        input: testcase["input"],
+        output: testcase["output"],
+      });
+      const submissionBody = {
+        source_code: modifiedCode,
+        language_id: languageId,
+        stdin: formattedInput,
+      };
+      body["submissions"].push(submissionBody);
+    });
+
+    return body;
   }
 }

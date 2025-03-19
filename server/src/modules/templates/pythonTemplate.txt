@@ -127,11 +127,11 @@ def main():
         obj = Solution()  # Create an instance
         method = getattr(obj, first_method_name)  # Retrieve method
         result = method(*process_input(testcase))  # Call the method
-        print(result)
-        if result == testcase["output"]:
+        judgeThis = str(result)
+        if judgeThis == testcase["output"]:
             print("Yay")
         else:
-            print("Error")
+            print("Booo")
 
 if __name__ == "__main__":
     main()
