@@ -1,0 +1,159 @@
+// Define a ListNode class for linked lists
+class ListNode {
+  constructor(val = 0, next = null) {
+    this.val = val;
+    this.next = next;
+  }
+}
+
+// Define a TreeNode class for binary trees
+class TreeNode {
+  constructor(val = 0, left = null, right = null) {
+    this.val = val;
+    this.left = left;
+    this.right = right;
+  }
+}
+
+// Convert an array into a binary tree using level order insertion (BFS)
+function listToTree(arr) {
+  if (!arr.length) return null;
+  let root = new TreeNode(arr[0]);
+  let queue = [root];
+  let index = 1;
+  while (queue.length && index < arr.length) {
+    let node = queue.shift();
+    if (arr[index] !== null && arr[index] !== undefined) {
+      node.left = new TreeNode(arr[index]);
+      queue.push(node.left);
+    }
+    index++;
+    if (index < arr.length && arr[index] !== null && arr[index] !== undefined) {
+      node.right = new TreeNode(arr[index]);
+      queue.push(node.right);
+    }
+    index++;
+  }
+  return root;
+}
+
+// Convert a binary tree back into an array using level order traversal
+function treeToList(root) {
+  if (!root) return [];
+  let result = [];
+  let queue = [root];
+  while (queue.length) {
+    let node = queue.shift();
+    if (node) {
+      result.push(node.val);
+      queue.push(node.left);
+      queue.push(node.right);
+    } else {
+      result.push(null);
+    }
+  }
+  // Trim trailing nulls
+  while (result[result.length - 1] === null) {
+    result.pop();
+  }
+  return result;
+}
+
+// Convert an array to a linked list
+function listToLinkedList(arr) {
+  if (!arr.length) return null;
+  let head = new ListNode(arr[0]);
+  let current = head;
+  for (let i = 1; i < arr.length; i++) {
+    current.next = new ListNode(arr[i]);
+    current = current.next;
+  }
+  return head;
+}
+
+// Convert a linked list back to an array
+function linkedListToList(head) {
+  let result = [];
+  while (head) {
+    result.push(head.val);
+    head = head.next;
+  }
+  return result;
+}
+
+// Process input based on its type
+function processInput(data) {
+  let d = data.input;
+  switch (data.type) {
+    case "ARRAY_AND_TARGET":
+      return [d.arr, d.target];
+    case "ARRAY_ONLY":
+      return [d.arr];
+    case "SINGLE_INTEGER":
+      return [d.num];
+    case "DOUBLE_INTEGER":
+      return [d.num1, d.num2];
+    case "SINGLE_STRING":
+      return [d.s];
+    case "DOUBLE_STRING":
+      return [d.s1, d.s2];
+    case "ARRAY_AND_STRING":
+      return [d.arr, d.s];
+    case "TWO_ARRAYS":
+      return [d.arr1, d.arr2];
+    case "LINKED_LIST":
+      return [listToLinkedList(d.list)];
+    case "TREE":
+      return [listToTree(d.list)];
+    default:
+      return "unknown_input_type";
+  }
+}
+
+// Example Solution class – replace with your actual solution implementation
+class Solution {
+  // For demonstration, assume the first method solves a Two Sum-like problem.
+  twoSum(arr, target) {
+    for (let i = 0; i < arr.length; i++) {
+      for (let j = i + 1; j < arr.length; j++) {
+        if (arr[i] + arr[j] === target) {
+          return [i, j];
+        }
+      }
+    }
+    return [];
+  }
+}
+
+// Main test harness
+function main() {
+  let inputData = "";
+  process.stdin.setEncoding("utf8");
+
+  process.stdin.on("data", chunk => {
+    inputData += chunk;
+  });
+
+  process.stdin.on("end", () => {
+    const testCase = JSON.parse(inputData);
+    // Dynamically retrieve method names (ignoring the constructor)
+    const methodNames = Object.getOwnPropertyNames(Solution.prototype).filter(name => name !== "constructor");
+    const firstMethodName = methodNames[0];
+
+    if (firstMethodName) {
+      const solutionInstance = new Solution();
+      // Call the first method with the processed input
+      const result = solutionInstance[firstMethodName](...processInput(testCase));
+      // Compare output using JSON.stringify to handle arrays/objects
+      const resultStr = JSON.stringify(result);
+      const expectedStr = JSON.stringify(testCase.output);
+      if (resultStr === expectedStr) {
+        console.log("Yay");
+      } else {
+        console.log("Booo");
+      }
+    }
+  });
+}
+
+main();

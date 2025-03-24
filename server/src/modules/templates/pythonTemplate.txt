@@ -128,6 +128,9 @@ def main():
         method = getattr(obj, first_method_name)  # Retrieve method
         result = method(*process_input(testcase))  # Call the method
         judgeThis = str(result)
+        print(judgeThis)
+
+        print(testcase["output"])
         if judgeThis == testcase["output"]:
             print("Yay")
         else:
