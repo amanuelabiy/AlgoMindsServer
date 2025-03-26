@@ -1,11 +1,22 @@
 import { config } from "../../config/app.config";
-import * as fs from "fs";
-import * as path from "path";
 import { TestCaseService } from "../testcase/testcase.service";
 import { TestCase, TestcaseEnum } from "@prisma/client";
 import { SubmissionService } from "../submission/submission.service";
 import { CodeprepService } from "../codeprep/codeprep.service";
-
+import { JsonObject } from "@prisma/client/runtime/library";
+import { json } from "express";
+interface Judge0Result {
+  stdout: string | null;
+  stderr: string | null;
+  time: string | null;
+  token: string;
+  compile_output: string | null;
+  status: {
+    id: number;
+    description: string;
+  };
+  message?: string;
+}
 export class Judge0Service {
   /**
    * A testcase service instance to grab testcases from the database.
@@ -92,6 +103,7 @@ export class Judge0Service {
     );
 
     const body = await this.formatAPICall(modifiedCode, languageId, testcases);
+    
     const response = await fetch(
       `${config.JUDGE0_API_BASE_URL}/submissions/batch?base64_encoded=false&wait=true`,
       {
@@ -112,6 +124,8 @@ export class Judge0Service {
     });
     tokens = tokens.slice(0, -1);
     return await this.checkSubmissionStatus(tokens);
+
+    
   }
 
   /**
@@ -168,9 +182,44 @@ export class Judge0Service {
         await new Promise((res) => setTimeout(res, 2000));
       }
     } while (!allDone);
-    return results; // Return the final result
+    const numOfTestcases = results.submissions.length;
+    return await this.judgeResults(results.submissions, numOfTestcases) // Return the final result
   }
 
+  async judgeResults(results: Judge0Result[], numOfTestcases: number) {
+    console.log(results);
+    var passed: number = 0;
+    let judgedOuput: any[] = []; // fix type later
+
+    results.forEach((result: Judge0Result) => {
+      if (result.status.id === 3) {
+        judgedOuput.push( {
+          stdout: result.stdout,
+          message: result.message,
+          status: result.status.description,
+        });
+        passed += 1;
+      } else if (result.status.id === 4) {
+        judgedOuput.push({
+          stdout: result.stdout,
+          stderr: result.stderr,
+          status: result.status.description,
+        });
+      }
+      else {
+        judgedOuput.push({
+          stdout: result.stdout,
+          time: result.time,
+          stderr: result.stderr,
+          token: result.token,
+          compile_output: result.compile_output,
+          status: result.status,
+          message: result.message,
+        });
+      }
+    });
+    return [judgedOuput, passed];
+  }
   async formatAPICall(
     modifiedCode: string,
     languageId: number,
@@ -181,6 +230,8 @@ export class Judge0Service {
         source_code: string;
         language_id: number;
         stdin: string;
+        expected_output: string;
+        ignore_case: boolean;
       }[];
     } = {
       submissions: [],
@@ -195,7 +246,9 @@ export class Judge0Service {
         source_code: modifiedCode,
         language_id: languageId,
         stdin: formattedInput,
-        expected_output: testcase["output"]
+        expected_output: testcase["output"],
+        ignore_case: true,
+        ignore_whitespace: true,
       };
       body["submissions"].push(submissionBody);
     });

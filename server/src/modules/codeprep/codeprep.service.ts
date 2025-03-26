@@ -32,10 +32,11 @@ export class CodeprepService {
           endMarker = "# Code Snippet END ====================";
           break;
         case 62:
-          startMarker = "// Code Snippet END ====================";
+        case 93:
+          startMarker = "// Code Snippet START ====================";
           endMarker = "// Code Snippet END ====================";
           break;
-      }
+      } 
 
       const startIndex = pythonTemplate.indexOf(startMarker);
       const endIndex = pythonTemplate.indexOf(endMarker);
@@ -96,6 +97,19 @@ async prepareCode(language_id: number) {
           userCode
         );
         break;
+        case 93:
+          templatePath = path.join(__dirname, "../templates/javascriptTemplate.txt"); // Template Java file
+        userCode = fs.readFileSync(
+          path.join(__dirname, "../templates/sampleJavascriptCode.txt"),
+          "utf-8"
+        );
+        modifiedCode = await this.generateModifiedCode(
+          templatePath,
+          language_id,
+          userCode
+        );
+        break;
+
     }
     return modifiedCode;
   }

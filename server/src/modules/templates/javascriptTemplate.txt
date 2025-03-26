@@ -111,19 +111,8 @@ function processInput(data) {
 }
 
 // Example Solution class – replace with your actual solution implementation
-class Solution {
-  // For demonstration, assume the first method solves a Two Sum-like problem.
-  twoSum(arr, target) {
-    for (let i = 0; i < arr.length; i++) {
-      for (let j = i + 1; j < arr.length; j++) {
-        if (arr[i] + arr[j] === target) {
-          return [i, j];
-        }
-      }
-    }
-    return [];
-  }
-}
+// Code Snippet START ====================
+// Code Snippet END ====================
 
 // Main test harness
 function main() {
@@ -146,12 +135,9 @@ function main() {
       const result = solutionInstance[firstMethodName](...processInput(testCase));
       // Compare output using JSON.stringify to handle arrays/objects
       const resultStr = JSON.stringify(result);
-      const expectedStr = JSON.stringify(testCase.output);
-      if (resultStr === expectedStr) {
-        console.log("Yay");
-      } else {
-        console.log("Booo");
-      }
+      const expectedStr =(testCase.output);
+      
+      console.log(resultStr)
     }
   });
 }
