@@ -93,7 +93,7 @@ model TestCase {
   id        Int          @id @default(autoincrement())
   problemId Int
   type      TestcaseEnum
-  input     Json
+  input     String
   output    String
   Problem   Problem      @relation(fields: [problemId], references: [id])
 
@@ -157,6 +157,7 @@ enum TestcaseEnum {
   ARRAY_ONLY
   SINGLE_INTEGER
   DOUBLE_INTEGER
+  STRING
   SINGLE_STRING
   DOUBLE_STRING
   ARRAY_AND_STRING

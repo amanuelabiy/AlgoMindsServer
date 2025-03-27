@@ -84,27 +84,35 @@ def linkedlist_to_list(head):
     return result
 
 def process_input(data):
-        d = data["input"]
-        if data["type"] == "ARRAY_AND_TARGET":
-            return (d["arr"], d["target"])
-        elif data["type"] == "ARRAY_ONLY":
+        type = data["type"]
+        input = data["input"]
+        lines = []
+
+        
+
+        if type == "ARRAY_AND_TARGET": # 1 \n then len of arr\n then target
+            parts = input.split('|')
+
+            print(parts[1])
+            lines.append(int(parts[1]))               
+            lines.append(json.loads(parts[0])) 
+            # Fix this here
+            return lines
+        elif type == "ARRAY_ONLY":
             return (d["arr"],)
-        elif data["type"] == "SINGLE_INTEGER":
+        elif type == "INTEGERS": # 2 \n then num of integers \n integers
             return (d["num"],)
-        elif data["type"] == "DOUBLE_INTEGER":
-            return (d["num1"], d["num2"])
-        elif data["type"] == "SINGLE_STRING":
-            return (d["s"],)
-        elif data["type"] == "DOUBLE_STRING":
-            return (d["s1"], d["s2"])
-        elif data["type"] == "ARRAY_AND_STRING":
+        elif type == "STRING": # 4 len of string \n string
+            lines = input.split('|')
+            return lines
+        elif type == "ARRAY_AND_STRING": # 6
             return (d["arr"], d["s"])
-        elif data["type"] == "TWO_ARRAYS":
+        elif type == "TWO_ARRAYS": # 7 
             return (d["arr1"], d["arr2"])
-        elif data["type"] == "LINKED_LIST":
+        elif type == "LINKED_LIST": # 8
             head = list_to_linkedlist(d["list"])
             return (head,)
-        elif data["type"] == "TREE":
+        elif type["type"] == "TREE": # 9
             root = list_to_tree(d["list"])
             return (root,)  # Fix: Ensure it returns a tuple
         else:
@@ -119,6 +127,7 @@ def main():
     testcase_json = sys.stdin.read().strip()  # Read all input from stdin
     testcase = json.loads(testcase_json)  # Parse JSON into a Python dictionar
 
+   
     # Add your main code here
     methods = [name for name, func in inspect.getmembers(Solution, predicate=inspect.isfunction)]
     first_method_name = methods[0] if methods else None

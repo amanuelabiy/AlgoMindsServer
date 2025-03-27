@@ -2,14 +2,23 @@ class Solution:
     def isPalindrome(self,string):
         return string == string[::-1]
 
+#class Solution:
+ #   def maxSubArray(self, nums):
+  #      current_sum = max_sum = nums[0]
+  #      
+  #      for num in nums[1:]:
+  #          current_sum = max(num, current_sum + num)
+  #          max_sum = max(max_sum, current_sum)
+  #      
+  #      return max_sum
 
 
-##class Solution:
-  ##  def twoSum(self, nums, target):
-  ##      lookup = {}
-##        for i, num in enumerate(nums):
- ##           complement = target - num
-##            if complement in lookup:
-##                return [lookup[complement], i]
-##            lookup[num] = i
-##        return []  # Return an empty list if no solution is found##
+class Solution:  
+    def twoSum(self, nums, target):
+        lookup = {}
+        for i, num in enumerate(nums):
+            complement = target - num
+            if complement in lookup:
+                return [lookup[complement], i]
+        lookup[num] = i
+        return []  # Return an empty list if no solution is found##
