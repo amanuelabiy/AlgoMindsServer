@@ -30,17 +30,27 @@ export class AuthController {
   }
 
   public register = asyncHandler(
-    async (req: Request, res: Response): Promise<any> => {
+    async (req: Request, res: Response): Promise<Response> => {
+      const userAgent = req.headers["user-agent"];
       // Validate the request body
       const body = registerSchema.parse({
         ...req.body,
+        userAgent,
       });
 
-      const { user } = await this.authService.register(body);
+      const { user, accessToken, refreshToken } =
+        await this.authService.register(body);
 
-      return res
+      return setAuthenticationCookies({
+        res,
+        accessToken,
+        refreshToken,
+      })
         .status(HTTPSTATUS.CREATED)
-        .json(omitSensitive(user, ["password"]));
+        .json({
+          message: "Registered successfully",
+          data: omitSensitive(user, ["password"]),
+        });
     }
   );
 

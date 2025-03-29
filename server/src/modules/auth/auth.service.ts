@@ -2,7 +2,9 @@ import { User } from "@prisma/client";
 import { ErrorCode } from "../../common/enums/error-code.enum";
 import {
   LoginDto,
+  LoginResponseDto,
   RegisterDto,
+  RegisterResponseDto,
   ResetPasswordDto,
 } from "../../common/interface/authDto";
 import {
@@ -55,7 +57,10 @@ export class AuthService {
     this.waitListService = waitListService;
   }
 
-  public async register(registerData: RegisterDto): Promise<{ user: User }> {
+  public async register(
+    registerData: RegisterDto
+  ): Promise<RegisterResponseDto> {
+    const { userAgent } = registerData;
     // Check if the user already exists
     const existingUser = await this.userService.findByEmail(registerData.email);
 
@@ -111,12 +116,32 @@ export class AuthService {
       ...verifyEmailTemplate(verificationUrl),
     });
 
+    const session = await this.sessionService.createSession({
+      userId,
+      userAgent,
+    });
+
+    // Using default accessTokenSignOptions
+    const accessToken = signJwtToken({
+      userId,
+      sessionId: session.id,
+    });
+
+    const refreshToken = signJwtToken(
+      {
+        sessionId: session.id,
+      },
+      refreshTokenSignOptions
+    );
+
     return {
       user: newUser,
+      accessToken,
+      refreshToken,
     };
   }
 
-  public async login(loginData: LoginDto) {
+  public async login(loginData: LoginDto): Promise<LoginResponseDto> {
     const { email, password, userAgent } = loginData;
 
     const user = await this.userService.findByEmail(email);

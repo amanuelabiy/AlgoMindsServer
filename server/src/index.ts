@@ -18,6 +18,7 @@ import openAIRoutes from "./modules/openai/openai.routes";
 import problemRoutes from "./modules/problem/problem.routes";
 
 import judge0Routes from "./modules/judge0/judge0.routes";
+import keysRoutes from "./modules/keys/keys.routes";
 
 const app = express();
 const BASE_PATH = config.BASE_PATH;
@@ -43,14 +44,13 @@ app.get(
 );
 app.use(`${BASE_PATH}/auth`, authRoutes);
 app.use(`${BASE_PATH}/mfa`, mfaRoutes);
-app.use(`${BASE_PATH}/waitlist`, waitListRoutes);
-app.use(`${BASE_PATH}/problems`, problemRoutes);
+app.use(`${BASE_PATH}/waitlist`, authenticateJWT, waitListRoutes);
+app.use(`${BASE_PATH}/problems`, authenticateJWT, problemRoutes);
+app.use(`${BASE_PATH}/keys`, authenticateJWT, keysRoutes);
 
 // OpenAI API test route
-app.use(`${BASE_PATH}/testai`, openAIRoutes);
-// // Judge0 API test route
-// app.use(`${BASE_PATH}/judge0`, judge0Routes);
-app.use(`${BASE_PATH}/testai`, openAIRoutes);
+app.use(`${BASE_PATH}/openai`, openAIRoutes);
+
 // Judge0 API test route
 app.use(`${BASE_PATH}/judge0`, judge0Routes);
 

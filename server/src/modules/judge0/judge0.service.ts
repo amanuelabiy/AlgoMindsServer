@@ -4,18 +4,8 @@ import { TestCase } from "@prisma/client";
 import { CodeprepService } from "../codeprep/codeprep.service";
 import { JsonObject } from "@prisma/client/runtime/library";
 import { json } from "express";
-interface Judge0Result {
-  stdout: string | null;
-  stderr: string | null;
-  time: string | null;
-  token: string;
-  compile_output: string | null;
-  status: {
-    id: number;
-    description: string;
-  };
-  message?: string;
-}
+import { Judge0Result } from "../../@types/judge0/judge0";
+
 export class Judge0Service {
   /**
    * A testcase service instance to grab testcases from the database.

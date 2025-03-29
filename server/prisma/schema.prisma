@@ -26,6 +26,7 @@ model User {
   VerificationCode VerificationCode[]
 
   isBetaUser      Boolean            @default(false)
+  usedBetaKey     BetaKey?        
 
   @@map("users")
 }
@@ -167,3 +168,18 @@ enum TestcaseEnum {
   LINKED_LIST
   TREE
 }
+
+model BetaKey {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  isUsed    Boolean  @default(false)
+  usedById  String?  @unique
+  usedBy    User?    @relation(fields: [usedById], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  expiresAt DateTime?
+
+  @@index([key])
+  @@map("beta_keys")
+}
+
