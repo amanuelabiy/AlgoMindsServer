@@ -1,7 +1,6 @@
 import { config } from "../../config/app.config";
 import { TestCaseService } from "../testcase/testcase.service";
-import { TestCase, TestcaseEnum } from "@prisma/client";
-import { SubmissionService } from "../submission/submission.service";
+import { TestCase } from "@prisma/client";
 import { CodeprepService } from "../codeprep/codeprep.service";
 import { JsonObject } from "@prisma/client/runtime/library";
 import { json } from "express";
@@ -25,16 +24,14 @@ export class Judge0Service {
   /**
    * A submission service instance to submit user code to the database.
    */
-  private submissionService: SubmissionService;
+
   private codeprepService: CodeprepService;
 
   constructor(
     testcaseService: TestCaseService,
-    submissionService: SubmissionService,
     codeprepService: CodeprepService
   ) {
     this.testcaseService = testcaseService;
-    this.submissionService = submissionService;
     this.codeprepService = codeprepService;
   }
 
@@ -52,14 +49,15 @@ export class Judge0Service {
     languageId: number,
     problemId: number
   ) {
-    const modifiedCode = (await this.codeprepService.prepareCode(languageId)) || "";
+    const modifiedCode =
+      (await this.codeprepService.prepareCode(languageId)) || "";
 
     const testcases: TestCase[] = await this.testcaseService.getSampleTestCases(
       problemId
     );
 
     const body = await this.formatAPICall(modifiedCode, languageId, testcases);
-    console.log(body)
+
     const response = await fetch(
       `${config.JUDGE0_API_BASE_URL}/submissions/batch?base64_encoded=false&wait=true`,
       {
@@ -74,6 +72,7 @@ export class Judge0Service {
      * @type {string}
      */
     let tokens: string = "";
+    //@ts-ignore #TODO: Fix this type error later remove ts-ignore
     result.forEach((item: { token: string }) => {
       tokens = tokens.concat(item.token, ",");
     });
@@ -96,14 +95,15 @@ export class Judge0Service {
     languageId: number,
     problemId: number
   ) {
-    const modifiedCode = (await this.codeprepService.prepareCode(languageId)) || "";
+    const modifiedCode =
+      (await this.codeprepService.prepareCode(languageId)) || "";
 
     const testcases: TestCase[] = await this.testcaseService.getTestAllCases(
       problemId
     );
 
     const body = await this.formatAPICall(modifiedCode, languageId, testcases);
-    
+
     const response = await fetch(
       `${config.JUDGE0_API_BASE_URL}/submissions/batch?base64_encoded=false&wait=true`,
       {
@@ -114,18 +114,17 @@ export class Judge0Service {
     );
 
     const result = await response.json();
-    console.log(result)
+    console.log(result);
     /**
      * @type {string}
      */
     let tokens: string = "";
+    //@ts-ignore #TODO: Fix this type error later remove ts-ignore
     result.forEach((item: { token: string }) => {
       tokens = tokens.concat(item.token, ",");
     });
     tokens = tokens.slice(0, -1);
     return await this.checkSubmissionStatus(tokens);
-
-    
   }
 
   /**
@@ -151,7 +150,6 @@ export class Judge0Service {
   //   }
   // }
 
- 
   async checkSubmissionStatus(tokens: string) {
     /**
      * @type {Array}
@@ -170,7 +168,9 @@ export class Judge0Service {
           headers: config.JUDGE0_HEADERS,
         }
       );
+      //@ts-ignore #TODO: Fix this type error later remove ts-ignore
       results = await response.json();
+      //@ts-ignore #TODO: Fix this type error later remove ts-ignore
       allDone = results.submissions.every(
         (result: { status: { id: number } }) => {
           return result.status.id !== 1 && result.status.id !== 2;
@@ -182,8 +182,10 @@ export class Judge0Service {
         await new Promise((res) => setTimeout(res, 2000));
       }
     } while (!allDone);
+    //@ts-ignore #TODO: Fix this type error later remove ts-ignore
     const numOfTestcases = results.submissions.length;
-    return await this.judgeResults(results.submissions, numOfTestcases) // Return the final result
+    //@ts-ignore #TODO: Fix this type error later remove ts-ignore
+    return await this.judgeResults(results.submissions, numOfTestcases); // Return the final result
   }
 
   async judgeResults(results: Judge0Result[], numOfTestcases: number) {
@@ -193,7 +195,7 @@ export class Judge0Service {
 
     results.forEach((result: Judge0Result) => {
       if (result.status.id === 3) {
-        judgedOuput.push( {
+        judgedOuput.push({
           stdout: result.stdout,
           message: result.message,
           status: result.status.description,
@@ -205,8 +207,7 @@ export class Judge0Service {
           stderr: result.stderr,
           status: result.status.description,
         });
-      }
-      else {
+      } else {
         judgedOuput.push({
           stdout: result.stdout,
           time: result.time,

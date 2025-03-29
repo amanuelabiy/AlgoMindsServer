@@ -25,6 +25,8 @@ model User {
   user_problems    user_problems[]
   VerificationCode VerificationCode[]
 
+  isBetaUser      Boolean            @default(false)
+
   @@map("users")
 }
 

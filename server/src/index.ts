@@ -16,7 +16,7 @@ import mfaRoutes from "./modules/mfa/mfa.routes";
 import waitListRoutes from "./modules/waitlist/waitlist.routes";
 import openAIRoutes from "./modules/openai/openai.routes";
 import problemRoutes from "./modules/problem/problem.routes";
-import submissionRoutes from "./modules/submission/submission.routes";
+
 import judge0Routes from "./modules/judge0/judge0.routes";
 
 const app = express();
@@ -41,12 +41,10 @@ app.get(
     res.status(HTTPSTATUS.OK).json({ message: "Hello, world!" });
   })
 );
-
 app.use(`${BASE_PATH}/auth`, authRoutes);
 app.use(`${BASE_PATH}/mfa`, mfaRoutes);
 app.use(`${BASE_PATH}/waitlist`, waitListRoutes);
 app.use(`${BASE_PATH}/problems`, problemRoutes);
-app.use(`${BASE_PATH}/submission`, submissionRoutes);
 
 // OpenAI API test route
 app.use(`${BASE_PATH}/testai`, openAIRoutes);

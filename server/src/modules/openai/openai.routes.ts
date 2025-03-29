@@ -3,6 +3,9 @@ import { openAIController } from "./openai.module";
 
 const openAIRoutes = Router();
 
-openAIRoutes.get("/createtestcase", openAIController.CreateTestCases);
+openAIRoutes.post(
+  "/ai-response/landing",
+  openAIController.getResponseForLandingPage
+);
 
 export default openAIRoutes;

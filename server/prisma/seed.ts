@@ -1,15 +1,32 @@
-import { PrismaClient, ProblemDifficulty, Status, TestcaseEnum } from "@prisma/client";
+import {
+  PrismaClient,
+  ProblemDifficulty,
+  Status,
+  TestcaseEnum,
+} from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log("Seeding database...");
 
+  await prisma.testCase.deleteMany();
+  await prisma.problem.deleteMany();
+
+  await prisma.$executeRawUnsafe(
+    `ALTER SEQUENCE "problems_id_seq" RESTART WITH 1`
+  );
+  await prisma.$executeRawUnsafe(
+    `ALTER SEQUENCE "testcases_id_seq" RESTART WITH 1`
+  );
+  console.log("Cleared existing problems and test cases.");
+
   const problemsData = [
     {
       slug: "two-sum",
       title: "Two Sum",
-      content: "Return indices of the two numbers such that they add up to a target.",
+      content:
+        "Return indices of the two numbers such that they add up to a target.",
       tags: ["array", "hashmap"],
       difficulty: ProblemDifficulty.EASY,
     },
@@ -97,11 +114,21 @@ async function main() {
   }
 
   const generateTestCases = async () => {
-    const allCases: Array<{ type: TestcaseEnum; input: any; output: string; problemId: number }> = [];
+    const allCases: Array<{
+      type: TestcaseEnum;
+      input: string;
+      output: string;
+      problemId: number;
+    }> = [];
 
     for (const problem of createdProblems) {
       const baseSlug = problem.slug;
-      const cases: Array<{ type: TestcaseEnum; input: any; output: string; problemId: number }> = [];
+      const cases: Array<{
+        type: TestcaseEnum;
+        input: string;
+        output: string;
+        problemId: number;
+      }> = [];
 
       for (let i = 0; i < 4; i++) {
         let testCase: any = {};
@@ -112,7 +139,7 @@ async function main() {
             const target = 9;
             testCase = {
               type: TestcaseEnum.ARRAY_AND_TARGET,
-              input: { arr, target },
+              input: JSON.stringify({ arr, target }),
               output: JSON.stringify([0, 1]),
             };
             break;
@@ -121,8 +148,10 @@ async function main() {
             const word = ["racecar", "hello", "madam", "world"][i];
             testCase = {
               type: TestcaseEnum.SINGLE_STRING,
-              input: { s: word },
-              output: JSON.stringify(word === word.split("").reverse().join("")),
+              input: JSON.stringify({ s: word }),
+              output: JSON.stringify(
+                word === word.split("").reverse().join("")
+              ),
             };
             break;
           }
@@ -131,7 +160,7 @@ async function main() {
             const output = [...input].reverse();
             testCase = {
               type: TestcaseEnum.LINKED_LIST,
-              input: { head: input },
+              input: JSON.stringify({ head: input }),
               output: JSON.stringify(output),
             };
             break;
@@ -141,7 +170,7 @@ async function main() {
             const valid = ["()", "({[]})"].includes(str);
             testCase = {
               type: TestcaseEnum.SINGLE_STRING,
-              input: { s: str },
+              input: JSON.stringify({ s: str }),
               output: JSON.stringify(valid),
             };
             break;
@@ -151,7 +180,7 @@ async function main() {
             const l2 = [1, 3, 4];
             testCase = {
               type: TestcaseEnum.LINKED_LIST,
-              input: { l1, l2 },
+              input: JSON.stringify({ l1, l2 }),
               output: JSON.stringify([1, 1, 2, 3, 4, 4]),
             };
             break;
@@ -160,7 +189,7 @@ async function main() {
             const arr = [-2, 1, -3, 4, -1, 2, 1, -5, 4];
             testCase = {
               type: TestcaseEnum.ARRAY_ONLY,
-              input: { nums: arr },
+              input: JSON.stringify({ nums: arr }),
               output: JSON.stringify(6),
             };
             break;
@@ -170,7 +199,7 @@ async function main() {
             const ways = [2, 3, 5, 8][i];
             testCase = {
               type: TestcaseEnum.SINGLE_INTEGER,
-              input: { n },
+              input: JSON.stringify({ n }),
               output: JSON.stringify(ways),
             };
             break;
@@ -181,7 +210,7 @@ async function main() {
             const idx = arr.indexOf(target);
             testCase = {
               type: TestcaseEnum.ARRAY_AND_TARGET,
-              input: { arr, target },
+              input: JSON.stringify({ arr, target }),
               output: JSON.stringify(idx === -1 ? -1 : idx),
             };
             break;
@@ -191,19 +220,26 @@ async function main() {
             const fib = [0, 1, 5, 13][i];
             testCase = {
               type: TestcaseEnum.SINGLE_INTEGER,
-              input: { n },
+              input: JSON.stringify({ n }),
               output: JSON.stringify(fib),
             };
             break;
           }
           case "majority-element": {
-            const nums = [[3, 3, 4], [2, 2, 1, 1, 1, 2, 2], [1], [1, 2, 3, 1, 1]][i];
+            const nums = [
+              [3, 3, 4],
+              [2, 2, 1, 1, 1, 2, 2],
+              [1],
+              [1, 2, 3, 1, 1],
+            ][i];
             const freq: Record<number, number> = {};
-            nums.forEach(n => freq[n] = (freq[n] || 0) + 1);
-            const majority = Object.keys(freq).find(k => freq[+k] > nums.length / 2);
+            nums.forEach((n) => (freq[n] = (freq[n] || 0) + 1));
+            const majority = Object.keys(freq).find(
+              (k) => freq[+k] > nums.length / 2
+            );
             testCase = {
               type: TestcaseEnum.ARRAY_ONLY,
-              input: { nums },
+              input: JSON.stringify({ nums }),
               output: JSON.stringify(Number(majority)),
             };
             break;
@@ -218,7 +254,6 @@ async function main() {
 
     return allCases;
   };
-
   const testCases = await generateTestCases();
 
   await prisma.testCase.createMany({
