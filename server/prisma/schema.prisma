@@ -20,9 +20,9 @@ model User {
   username         String             @unique
   problems         Problem[]
   Session          Session[]
-  submissions      submissions[]
+  submissions      Submissions[]
   userPreferences  UserPreferences?
-  user_problems    user_problems[]
+  user_problems    UserProblems[]
   VerificationCode VerificationCode[]
 
   isBetaUser      Boolean            @default(false)
@@ -85,9 +85,9 @@ model Problem {
   difficulty    ProblemDifficulty
   status        Status            @default(NOT_ATTEMPTED)
   users         User?             @relation(fields: [createdById], references: [id])
-  submissions   submissions[]
+  submissions   Submissions[]
   TestCases     TestCase[]
-  user_problems user_problems[]
+  user_problems UserProblems[]
 
   @@map("problems")
 }
@@ -103,11 +103,11 @@ model TestCase {
   @@map("testcases")
 }
 
-model submissions {
+model Submissions {
   userId    String
   code      String
   createdAt DateTime @default(now())
-  id        String   @id
+  id        String   @id @default(uuid())
   language  String
   passed    Boolean
   problemId Int
@@ -115,7 +115,7 @@ model submissions {
   users     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model user_problems {
+model UserProblems {
   id          String   @id
   userId      String
   problemId   Int

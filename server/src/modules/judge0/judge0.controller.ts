@@ -9,37 +9,14 @@ export class Judge0Controller {
   constructor(judge0Service: Judge0Service) {
     this.judge0Service = judge0Service;
   }
-  runSampleCode = asyncHandler(async (req: Request, res: Response) => {
-    console.log("Running sample code...");
-    const { userCode, languageId, problemId } = req.body;
 
-    if (!userCode || !languageId) {
-      return res
-        .status(400)
-        .json({ error: "sourceCode and languageId are required" });
+  public handleCallback = asyncHandler(
+    async (req: Request, res: Response): Promise<any> => {
+      await this.judge0Service.handleCallback(req.body);
+
+      res
+        .status(HTTPSTATUS.OK)
+        .json({ message: "Callback handled successfully" });
     }
-
-    const token = await this.judge0Service.runSampleCode(
-      userCode,
-      languageId,
-      problemId
-    );
-    res.status(HTTPSTATUS.CREATED).json({ token });
-  });
-  submitCode = asyncHandler(async (req: Request, res: Response) => {
-    const { userCode, languageId, problemId } = req.body;
-
-    if (!userCode || !languageId) {
-      return res
-        .status(400)
-        .json({ error: "sourceCode and languageId are required" });
-    }
-
-    const token = await this.judge0Service.submitBatchedCode(
-      userCode,
-      languageId,
-      problemId
-    );
-    res.status(HTTPSTATUS.CREATED).json({ token });
-  });
+  );
 }

@@ -3,7 +3,6 @@ import { judge0Controller } from "./judge0.module";
 
 const judge0Routes = Router();
 
-judge0Routes.post("/run", judge0Controller.runSampleCode);
-judge0Routes.post("/submit", judge0Controller.submitCode);
+judge0Routes.put("/callback", judge0Controller.handleCallback);
 
 export default judge0Routes;

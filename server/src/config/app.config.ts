@@ -21,6 +21,7 @@ const appConfig = () => ({
   JUDGE0_HEADERS: getEnv("JUDGE0_HEADERS")
     ? JSON.parse(getEnv("JUDGE0_HEADERS"))
     : "",
+  JUDGE0_CALLBACK_URL: getEnv("JUDGE0_CALLBACK_URL"),
   OPEN_API_KEY: getEnv("OPEN_API_KEY"),
 
   OPEN_API_LANDING_PAGE_CHAT_PROMPT: getEnv(
