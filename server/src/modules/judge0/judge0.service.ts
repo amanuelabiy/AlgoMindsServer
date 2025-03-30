@@ -28,7 +28,6 @@ export class Judge0Service {
   }
 
   public async handleCallback(data: any) {
-    const decodedOutput = Buffer.from(data.stdout, "base64").toString("utf-8");
-    console.log(decodedOutput);
+    console.log("Judge0 Callback hit!");
   }
 }
