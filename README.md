@@ -47,4 +47,4 @@ AlgoMinds uses a WebSocket-based architecture to deliver a seamless real-time ex
 
 > 📌 Below is a visual representation of the flow:
 
-![Code Execution Flow – Excalidraw Diagram](/docs/code-execution-architecture.png)
+![Code Execution Flow – Excalidraw Diagram](./server/docs/code-execution-architecture.png)
