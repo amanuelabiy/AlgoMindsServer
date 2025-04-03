@@ -1,6 +1,6 @@
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from "../../common/constants/problems";
 import prismaClient from "../../config/prismaClient";
-import { Problem } from "@prisma/client";
+import { Problem, TestCase } from "@prisma/client";
 
 export class ProblemRepository {
   public async getProblemsPagination(limit: number, offset: number) {
@@ -30,6 +30,13 @@ export class ProblemRepository {
 
   public async getAllProblems() {
     return await prismaClient.problem.findMany({
+      orderBy: { id: "asc" },
+    });
+  }
+
+  public async getTestCases(problemId: number): Promise<TestCase[]> {
+    return await prismaClient.testCase.findMany({
+      where: { problemId },
       orderBy: { id: "asc" },
     });
   }

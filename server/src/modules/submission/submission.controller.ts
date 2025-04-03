@@ -12,14 +12,14 @@ export class SubmissionController {
   }
 
   public submitCode = asyncHandler(
-    async (req: Request, res: Response): Promise<any> => {
+    async (req: Request, res: Response): Promise<Response> => {
       const body = submissionSchema.parse(req.body);
 
-      const result = await this.submissionService.submitCode(body);
+      await this.submissionService.submitCode(body);
 
       return res
         .status(HTTPSTATUS.CREATED)
-        .json({ message: "Code submitted successfully", result });
+        .json({ message: "Code submitted successfully" });
     }
   );
 }

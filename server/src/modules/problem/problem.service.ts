@@ -33,4 +33,8 @@ export class ProblemService {
   public async getAllProblems(): Promise<Problem[]> {
     return await this.problemRepository.getAllProblems();
   }
+
+  public async getTestCases(problemId: number): Promise<any> {
+    return await this.problemRepository.getTestCases(problemId);
+  }
 }

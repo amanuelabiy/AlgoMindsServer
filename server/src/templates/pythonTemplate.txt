@@ -1,3 +1,7 @@
+from modules import mod1 
+from modules import testcase
+
+
 import inspect
 from collections import deque
 import sys
@@ -83,61 +87,36 @@ def linkedlist_to_list(head):
         head = head.next
     return result
 
-def process_input(data):
-        type = data["type"]
-        input = data["input"]
-        lines = []
-
-        
-
-        if type == "ARRAY_AND_TARGET": # 1 \n then len of arr\n then target
-            parts = input.split('|')
-
-            print(parts[1])
-            lines.append(int(parts[1]))               
-            lines.append(json.loads(parts[0])) 
-            # Fix this here
-            return lines
-        elif type == "ARRAY_ONLY":
-            return (d["arr"],)
-        elif type == "INTEGERS": # 2 \n then num of integers \n integers
-            return (d["num"],)
-        elif type == "STRING": # 4 len of string \n string
-            lines = input.split('|')
-            return lines
-        elif type == "ARRAY_AND_STRING": # 6
-            return (d["arr"], d["s"])
-        elif type == "TWO_ARRAYS": # 7 
-            return (d["arr1"], d["arr2"])
-        elif type == "LINKED_LIST": # 8
-            head = list_to_linkedlist(d["list"])
-            return (head,)
-        elif type["type"] == "TREE": # 9
-            root = list_to_tree(d["list"])
-            return (root,)  # Fix: Ensure it returns a tuple
-        else:
-            return "unknown_input_type"
-
-    # Code Snippet START ====================
-
-    
-    
-    # Code Snippet END ====================
 def main():
-    testcase_json = sys.stdin.read().strip()  # Read all input from stdin
-    testcase = json.loads(testcase_json)  # Parse JSON into a Python dictionar
 
-   
+    
+    testcases_two_sum = [[[2,7,11,15],9],
+            [[1,2,3,4],7],
+            [[2,7,11,15],17]]
+    
+    
+    testcases_palindrome = [["madam"],
+                            ["fa"],
+                            ["afaa"],
+                            ["ffffe"]]
+    
+    testcases_same_string = [["first","second"],
+                             ["same","same"],
+                             ["same","same"]]
+    
     # Add your main code here
-    methods = [name for name, func in inspect.getmembers(Solution, predicate=inspect.isfunction)]
+    methods = [name for name, func in inspect.getmembers(mod1.Solution, predicate=inspect.isfunction)]
     first_method_name = methods[0] if methods else None
 
     if first_method_name:
-        obj = Solution()  # Create an instance
-        method = getattr(obj, first_method_name)  # Retrieve method
-        result = method(*process_input(testcase))  # Call the method
-        isCorrect = False
-        print(result)        
+        method = getattr(mod1.Solution, first_method_name)  # Retrieve method
+        result = []
+        for i in testcases_palindrome:
+            ans = method(*i)  # Call the method
+            print(ans)
+          
+    else:
+        print("no method found")     
         
     
 
@@ -145,4 +124,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
