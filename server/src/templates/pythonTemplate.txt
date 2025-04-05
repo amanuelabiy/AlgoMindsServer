@@ -1,119 +1,77 @@
-from modules import mod1 
-from modules import testcase
 
-
-import inspect
-from collections import deque
 import sys
+import re
 import json
+import inspect
 
+# Code Snippet START ====================
 
-class ListNode:
-    def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
-
-class TreeNode:
-    def __init__(self,val=0, left= None,right =None):
-        self.val = val
-        self.left = left
-        self.right = right
-
-def list_to_tree(arr):
-    """Creates a binary tree from a list using level order insertion (BFS)."""
-    if not arr:
-        return None
-
-    root = TreeNode(arr[0])
-    queue = deque([root])
-    index = 1
-
-    while queue and index < len(arr):
-        node = queue.popleft()
-        
-        if arr[index] is not None:
-            node.left = TreeNode(arr[index])
-            queue.append(node.left)
-        index += 1
-
-        if index < len(arr) and arr[index] is not None:
-            node.right = TreeNode(arr[index])
-            queue.append(node.right)
-        index += 1
-
-    return root
-
-def tree_to_list(root):
-    """Converts a binary tree back into a list (level order traversal)."""
-    if not root:
-        return []
+# Code Snippet END ====================
     
-    result = []
-    queue = deque([root])
+def readInput():
+    results = []
+    # Regex pattern for all supported types
+    pattern = r'(string s="[^"]*"|array a="[^"]*"|integer i="[^"]*")'
 
-    while queue:
-        node = queue.popleft()
-        if node:
-            result.append(node.val)
-            queue.append(node.left)
-            queue.append(node.right)
-        else:
-            result.append(None)
+    for line in sys.stdin:
+        curLine = []
+        if not line.strip():
+            continue  # Skip empty or whitespace-only lines
 
-    # Trim trailing None values
-    while result and result[-1] is None:
-        result.pop()
+        # Find all input items in the line
+        items = re.findall(pattern, line)
 
-    return result
+        for item in items:
+            if item.startswith('string'):
+                match = re.match(r'string s="([^"]*)"', item)
+                if match:
+                    curLine.append(match.group(1))
 
-def list_to_linkedlist(arr):
-    """Creates a linked list from a list."""
-    if not arr:
-        return None
+            elif item.startswith('array'):
+                match = re.match(r'array a="([^"]*)"', item)
+                if match:
+                    try:
+                        array = json.loads(match.group(1))
+                        curLine.append(array)
+                    except json.JSONDecodeError:
+                        print(f"Error decoding array: {match.group(1)}")
 
-    head = ListNode(arr[0])
-    current = head
-    for val in arr[1:]:
-        current.next = ListNode(val)
-        current = current.next
+            elif item.startswith('integer'):
+                match = re.match(r'integer i="([^"]*)"', item)
+                if match:
+                    try:
+                        number = int(match.group(1))
+                        curLine.append(number)
+                    except ValueError:
+                        print(f"Invalid integer: {match.group(1)}")
+            
+                    
 
-    return head
+        results.append(curLine)
 
-def linkedlist_to_list(head):
-    """Converts a linked list back to a list."""
-    result = []
-    while head:
-        result.append(head.val)
-        head = head.next
-    return result
+    return results
+def get_first_defined_method(cls):
+    for name, obj in cls.__dict__.items():
+        if callable(obj):
+            return name
+    return None
 
 def main():
 
-    
-    testcases_two_sum = [[[2,7,11,15],9],
-            [[1,2,3,4],7],
-            [[2,7,11,15],17]]
-    
-    
-    testcases_palindrome = [["madam"],
-                            ["fa"],
-                            ["afaa"],
-                            ["ffffe"]]
-    
-    testcases_same_string = [["first","second"],
-                             ["same","same"],
-                             ["same","same"]]
-    
+    lines = readInput()
     # Add your main code here
-    methods = [name for name, func in inspect.getmembers(mod1.Solution, predicate=inspect.isfunction)]
-    first_method_name = methods[0] if methods else None
+    
+    first_method_name = get_first_defined_method(Solution)
 
     if first_method_name:
-        method = getattr(mod1.Solution, first_method_name)  # Retrieve method
+        solution_instance = Solution()
+        method = getattr(solution_instance, first_method_name)  # Retrieve method
         result = []
-        for i in testcases_palindrome:
+        for i in lines:
             ans = method(*i)  # Call the method
-            print(ans)
+            print(f'Input: {i}')
+            print(f'Output: {ans}')
+
           
     else:
         print("no method found")     
@@ -124,3 +82,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

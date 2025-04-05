@@ -1,6 +1,6 @@
 class Solution:    
     def isPalindrome(self,string):
-        return string == string[::-1]
+       return string == string[::-1]
 
 #class Solution:
  #   def maxSubArray(self, nums):

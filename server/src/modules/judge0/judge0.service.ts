@@ -2,6 +2,7 @@ import axios from "axios";
 import { CodeSubmissionDto } from "../../common/interface/submissionDto";
 import { config } from "../../config/app.config";
 import { BadRequestException } from "../../common/utils/catch-errors";
+import { submissionSchema } from "../../common/validators/submission.validator";
 
 export class Judge0Service {
   public async submitCode(submissionData: CodeSubmissionDto) {
@@ -32,5 +33,11 @@ export class Judge0Service {
     return response.data;
   }
 
-  public async handleCallback(data: any) {}
+  public async handleCallback(data: any) {
+    const decodedStdout = data.stdout ? Buffer.from(data.stdout, "base64").toString("utf-8"): "No output"
+    const decodedStderr = data.stderr ? Buffer.from(data.stderr, "base64").toString("utf-8") : "No error"
+    console.log(decodedStdout);
+    console.log("Error: ", decodedStderr);
+    console.log("------------------------------")
+  }
 }
