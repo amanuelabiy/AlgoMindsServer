@@ -34,10 +34,14 @@ export class Judge0Service {
   }
 
   public async handleCallback(data: any) {
-    const decodedStdout = data.stdout ? Buffer.from(data.stdout, "base64").toString("utf-8"): "No output"
-    const decodedStderr = data.stderr ? Buffer.from(data.stderr, "base64").toString("utf-8") : "No error"
+    const decodedStdout = data.stdout
+      ? Buffer.from(data.stdout, "base64").toString("utf-8")
+      : "No output";
+    const decodedStderr = data.stderr
+      ? Buffer.from(data.stderr, "base64").toString("utf-8")
+      : "No error";
     console.log(decodedStdout);
     console.log("Error: ", decodedStderr);
-    console.log("------------------------------")
+    console.log("------------------------------");
   }
 }

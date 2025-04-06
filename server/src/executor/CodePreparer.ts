@@ -6,7 +6,7 @@ export class CodePreparer {
   private static languageTemplateMap: Record<number, string> = {
     71: "pythonTemplate.txt",
     62: "javaTemplate.txt",
-    93: "javascriptTemplate.txt",
+    63: "javascriptTemplate.txt",
   };
 
   private static commentSyntax: Record<number, { start: string; end: string }> =
@@ -19,7 +19,7 @@ export class CodePreparer {
         start: "// Code Snippet START ====================",
         end: "// Code Snippet END ====================",
       },
-      93: {
+      63: {
         start: "// Code Snippet START ====================",
         end: "// Code Snippet END ====================",
       },
